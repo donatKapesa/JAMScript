@@ -5,16 +5,13 @@ void jam_run_app(void *arg)
 {
     jamstate_t *js = (jamstate_t *)arg;
             
-    activity_make(js->atable, "test", "sii", SYNC);
-    activity_make(js->atable, "testfg2", "sii", SYNC);
-    activity_make(js->atable, "testfg", "sii", SYNC);
     
     int i; 
     
-    for (i = 0; i < 0; i++) {
+    for (i = 0; i < 10; i++) {
         printf("############################################ i = %d\n", i);
         
-    arg_t *res = jam_rexec_sync(js, "test", "f", 50, 36);
+    arg_t *res = jam_rexec_sync(js, "test", "sii", "f", 50, 36);
     
     if (res == NULL)
         printf("Nothing come out...\n");
@@ -23,7 +20,7 @@ void jam_run_app(void *arg)
         printf("*********************************\n HEEEEHAAAAAA... Results = %d \n*********************************\n", res->val.ival);
 
 
-    res = jam_rexec_sync(js, "testfg2", "f", 1250, 36);
+    res = jam_rexec_sync(js, "testfg2", "sii", "f", 1250, 36);
     
     if (res == NULL)
          printf("Nothing come out...\n");
@@ -34,7 +31,7 @@ void jam_run_app(void *arg)
     if (res->type == STRING_TYPE)
         printf("Error code %s\n", res->val.sval);
         
-    res = jam_rexec_sync(js, "testfg", "f", 1250, 36);
+    res = jam_rexec_sync(js, "testfg", "sii", "f", 1250, 36);
 
     if (res == NULL)
             printf("Nothing come out...\n");
@@ -69,7 +66,7 @@ void taskmain(int argc, char **argv)
 {   
     jamstate_t *js = jam_init();
 
-    activity_regcallback(js->atable, "hellofk", SYNC_TASK, "sis", callhellofk);
+    activity_regcallback(js->atable, "hellofk", ASYNC, "sis", callhellofk);
 
     // Start the event loop in another thread.. with cooperative threads.. we
     // to yield for that thread to start running
