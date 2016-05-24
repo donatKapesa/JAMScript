@@ -118,6 +118,7 @@ bool queue_enq(simplequeue_t *sq, void *data, int size)
 	int bytes = nn_send (sq->pushsock, dw, dwsize, 0);
 	free(dw);
 
+	printf("PUshedddd..............%d bytes \n", bytes);
 	if (bytes == dwsize)
 		return true;
 	else
@@ -128,6 +129,9 @@ nvoid_t *queue_deq(simplequeue_t *sq)
 {
 	char *buf = NULL;
 	int bytes = nn_recv (sq->pullsock, &buf, NN_MSG, 0);
+
+	printf("=================>>>>> Bytes %d\n", bytes);
+
 
 	if (bytes < 0) return NULL;
 

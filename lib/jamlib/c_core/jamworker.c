@@ -207,7 +207,7 @@ void jwork_process_subsock(jamstate_t *js)
     //  
     printf("===================== In subsock processing...\n");
     command_t *rcmd = socket_recv_command(js->cstate->subsock, 100);
-    printf("Command %s, actid %s\n", rcmd->cmd, rcmd->actid);
+    printf("Command %s, actid %s.. actname %s\n", rcmd->cmd, rcmd->actid, rcmd->actname);
     
     if (rcmd != NULL)
     {
@@ -215,12 +215,15 @@ void jwork_process_subsock(jamstate_t *js)
         {
             if (jwork_duplicate_call(rcmd)) 
             {
+                printf("Duplicate found... \n");
                 command_free(rcmd);
                 return;
             }
             
             if (jam_eval_condition(rcmd->actarg)) 
             {
+                printf("Pushing through the evaluation... \n");
+                
                 queue_enq(js->atable->globalinq, rcmd, sizeof(command_t));
                 thread_signal(js->atable->globalsem);
                 

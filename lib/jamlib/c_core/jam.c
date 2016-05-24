@@ -89,25 +89,39 @@ jamstate_t *jam_init()
 void jam_event_loop(void *arg)
 {
     jamstate_t *js = (jamstate_t *)arg;
+    temprecord_t *tr;
+    command_t *cmd;
+    activity_callback_reg_t *areg;
     
     while (1) 
     {
+        printf("Waiting...\n");
         task_wait(js->atable->globalsem);
-        nvoid_t *nv = queue_deq(js->atable->globalinq);   
-        command_t *cmd = (command_t *)nv->data;
-        free(nv);
+        nvoid_t *nv = queue_deq(js->atable->globalinq);
+        printf("Got an event...???\n");
+        if (nv != NULL) 
+        {
+            cmd = (command_t *)nv->data;
+            printf("Actid in cmd %s\n", cmd->actid);
+          //  free(nv);
+        } else
+            cmd = NULL;
     
         if (cmd != NULL)
         {
-            activity_callback_reg_t *areg = activity_findcallback(js->atable, cmd->actname);
+            areg = activity_findcallback(js->atable, cmd->actname);
             if (areg == NULL) 
             {
                 printf("Function not found.. \n");
             }
             else
             {
-                temprecord_t *tr = jam_newtemprecord(js, cmd, areg);
-                taskcreate(jrun_run_task, tr, STACKSIZE);
+                printf("COmmand actname = %s\n", cmd->actname);
+                
+                tr = jam_newtemprecord(js, cmd, areg);
+                //taskcreate(jrun_run_task, tr, STACKSIZE);
+                jrun_run_task(tr);
+                printf(">>>>>>> After task create...cmd->actname %s\n", cmd->actname);
             }                      
         }        
         taskyield();        

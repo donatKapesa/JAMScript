@@ -61,7 +61,6 @@ void callhellofk(void *act, void *arg)
 }
 
 
-
 void taskmain(int argc, char **argv)
 {   
     jamstate_t *js = jam_init();
