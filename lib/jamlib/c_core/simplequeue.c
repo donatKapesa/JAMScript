@@ -68,6 +68,8 @@ simplequeue_t *queue_new(bool ownedbyq)
 		if (nn_bind(sq->pullsock, buf) >= 0) {
 			sq->name = strdup(buf);
 			break;
+		}else{
+			sq->name = NULL;
 		}
 	}
 
@@ -79,7 +81,7 @@ simplequeue_t *queue_new(bool ownedbyq)
 	#ifdef DEBUG_LVL1
 		printf("Queue created at %s.. pullsock %d, pushsock %d\n", sq->name, sq->pushsock, sq->pullsock);
 	#endif
-		
+
 	return sq;
 }
 
@@ -91,7 +93,8 @@ bool queue_delete(simplequeue_t *sq)
 
 	rc = nn_close(sq->pullsock);
 	assert(rc == 0);
-		
+
+	free(sq->name);
 	free(sq);
 
 	return true;

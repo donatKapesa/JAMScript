@@ -31,6 +31,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "activity.h"
 #include "nvoid.h"
+#include <time.h>
 
 
 char *activity_gettime()
@@ -41,7 +42,10 @@ char *activity_gettime()
     return strdup(buf);
     #endif
 
-    // TODO: Implement the timer capture for linux.
+    struct timespec tp;
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+    sprintf(buf, "");
+    return strdup(buf);
     return 0;
 }
 
@@ -65,7 +69,7 @@ void activity_table_print(activitytable_t *at)
     printf("Activity callback regs.: [%d] \n", at->numcbackregs);
     printf("Activity instances: [%d]\n", at->numactivities);
     printf("Registrations::\n");
-    
+
     for (i = 0; i < at->numcbackregs; i++)
         activity_callbackreg_print(at->callbackregs[i]);
 
@@ -96,19 +100,19 @@ void activity_print(jactivity_t *ja)
         command_arg_print(ja->code);
     else
         printf("Activity code: NULL\n");
-        
+
     if (ja->inq != NULL)
         queue_print(ja->inq);
     if (ja->outq != NULL)
-        queue_print(ja->outq);    
-        
+        queue_print(ja->outq);
+
     printf("\n");
 }
 
 bool activity_regcallback(activitytable_t *at, char *name, int type, char *sig, activitycallback_f cback)
 {
     int i;
-    
+
     // if a registration already exists, return false
     for (i = 0; i < at->numcbackregs; i++)
         if (strcmp(at->callbackregs[i]->name, name) == 0)
@@ -120,7 +124,7 @@ bool activity_regcallback(activitytable_t *at, char *name, int type, char *sig, 
     strcpy(creg->signature, sig);
     creg->type = type;
     creg->cback = cback;
-    
+
     at->callbackregs[at->numcbackregs++] = creg;
 
     #ifdef DEBUG_LVL1
@@ -134,20 +138,21 @@ bool activity_regcallback(activitytable_t *at, char *name, int type, char *sig, 
 activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name)
 {
     int i;
-    
+
     for (i = 0; i < at->numcbackregs; i++)
         if (strcmp(at->callbackregs[i]->name, name) == 0)
             return at->callbackregs[i];
-    
+
     return NULL;
 }
 
-
+//WE HAVE A RACE CONDITION!
 jactivity_t *activity_new(activitytable_t *at, char *name)
 {
+    printf("Well this happened\n");
     jactivity_t *jact;
-
     jact = (jactivity_t *)calloc(1, sizeof(jactivity_t));
+    printf("Pointer of new activity %p\n", jact);
     at->activities[at->numactivities++] = jact;
 
     // Setup the new activity
@@ -159,17 +164,19 @@ jactivity_t *activity_new(activitytable_t *at, char *name)
     jact->actarg = strdup("__");
 
     // Setup the I/O queues
+    printf("Hue\n");
     jact->inq = queue_new(true);
     jact->outq = queue_new(true);
+    printf("Is the Woodpecker Null %p\n", jact->outq);
 
     printf("Creating the message... \n");
     // Send a message to the background so it starts watching for messages
     command_t *cmd = command_new("ASMBL-FDS", "LOCAL", name, jact->actid, jact->actarg, "s", "__");
 
     printf("Sending it.. \n");
-    
+
     queue_enq(at->globaloutq, cmd, sizeof(command_t));
-      
+
     #ifdef DEBUG_LVL1
         printf("Created the activity: %s\n", jact->name);
     #endif
@@ -194,11 +201,9 @@ jactivity_t *activity_getbyid(activitytable_t *at, char *actid)
 void activity_del(activitytable_t *at, jactivity_t *jact)
 {
     int i;
-    
+
     // remove individual elements of the activity
     threadsem_free(jact->sem);
-    free(jact->actid);
-    free(jact->actarg);
     command_arg_free(jact->code);
 
     // delete the queues..
@@ -206,19 +211,24 @@ void activity_del(activitytable_t *at, jactivity_t *jact)
     queue_delete(jact->outq);
 
     int j = activity_getactindx(at, jact);
-    
+
     for (i = j; i < at->numactivities; i++)
     {
-        if (i < (at->numactivities - 1)) 
+        if (i < (at->numactivities - 1))
             at->activities[i] = at->activities[i+1];
     }
-    
-    at->numactivities--;
 
+    at->activities[at->numactivities] = NULL;
+    printf("Activities Number : %d\n", at->numactivities);
+    at->numactivities--;
+    printf("Activities Number After : %d\n", at->numactivities);
+    printf("Pointer of Old Activity : %p\n", jact);
     // Send a message to the background so it starts watching for messages
     command_t *cmd = command_new("ASMBL-FDS", "LOCAL", jact->name, jact->actid, jact->actarg, "s", "temp");
- //   queue_enq(at->globaloutq, cmd, sizeof(command_t));
-    
+    queue_enq(at->globaloutq, cmd, sizeof(command_t));
+
+    free(jact->actid);
+    free(jact->actarg);
     free(jact);
 }
 
@@ -226,7 +236,7 @@ void activity_del(activitytable_t *at, jactivity_t *jact)
 int activity_getactindx(activitytable_t *at, jactivity_t *jact)
 {
     int i;
-    
+
     for (i = 0; i < at->numactivities; i++)
         if (at->activities[i] == jact)
             return i;

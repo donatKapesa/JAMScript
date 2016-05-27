@@ -58,19 +58,39 @@ void *jwork_bgthread(void *arg)
     // assemble the poller.. insert the FDs that should go into the poller
     jwork_assemble_fds(js);
 
-    // heartbeat time is set to 10000 milliseconds    
-    int beattime = 10000; 
+    // heartbeat time is set to 10000 milliseconds
+    int beattime = 10000;
     thread_signal(js->bgsem);
     // get into the event processing..
+    int counter = 0;
     while (1)
     {
+        printf("\n\n COUNTER %d \n\n", counter++);
         // wait on the poller
+        printf("Activity Number Before: %d\n", js->atable->numactivities);
         int nfds = jwork_wait_fds(js, beattime);
-        if (nfds <= 0) 
-        {
-            jam_send_ping(js);
-            continue;
-        }
+
+        printf("Activity Number After: %d\n", js->atable->numactivities);
+        if (nfds == 0)
+                {
+                    printf("Sending.. ping %d\n", nfds);
+                    jam_send_ping(js);
+                    for(int i = 0; i < js->numpollfds; i++){
+                      printf("Socket Num : %d\n", js->pollfds[i]);
+                    }
+                    perror("TIMEOUT BECAUSE ");
+                    continue;
+                }else if(nfds < 0){
+                    printf("ERROR %d\n", errno);
+                    for(int i = 0; i < js->numpollfds; i++){
+                      printf("Socket Num : %d\n", js->pollfds[i]);
+                    }
+                    perror("Error !");
+                    if(counter > 1000){
+                      printf("TOO MANY ERRORS. Exiting... \n");
+                      exit(1);
+                    }
+                }
 
     #ifdef DEBUG_LVL1
         printf("Calling the JAM worker processor.. \n");
@@ -108,10 +128,16 @@ void jwork_assemble_fds(jamstate_t *js)
     js->pollfds[3].fd = js->atable->globaloutq->pullsock;
 
     // scan the number of activities and get their input queue hooked
-    for (i = 0; i < js->atable->numactivities; i++) 
+    for (i = 0; i < js->atable->numactivities; i++)
     {
-        printf("Setting... i = %d\n", i);
-        js->pollfds[i+4].fd = js->atable->activities[i]->outq->pullsock;
+      js->atable->flags[1] = 1;
+      js->atable->turn = 0;
+      while (js->atable->flags[0] && js->atable->turn  == 0)
+      {
+          // busy wait
+      }
+      js->pollfds[i+4].fd = js->atable->activities[i]->outq->pullsock;
+      js->atable->flags[1] = 0;
     }
     printf("DONE.................................\n");
 
@@ -163,11 +189,11 @@ void jwork_process_reqsock(jamstate_t *js)
     //
     // TODO: What about the timeout value.. it could be inconsequential
     printf("----- In request sock.. \n");
-    
+
     command_t *rcmd = socket_recv_command(js->cstate->reqsock, 5000);
-    
+
     printf("Actname %s\n", rcmd->actname);
-    
+
     if (rcmd != NULL)
     {
         if (strcmp(rcmd->actname, "EVENTLOOP") == 0)
@@ -180,9 +206,9 @@ void jwork_process_reqsock(jamstate_t *js)
         if (strcmp(rcmd->actname, "ACTIVITY") == 0)
         {
             printf("Activity ID: %s\n", rcmd->actid);
-            
+
             jactivity_t *jact = activity_getbyid(js->atable, rcmd->actid);
-            
+
             // Send it to the activity and unblock the activity
             queue_enq(jact->inq, rcmd, sizeof(command_t));
             thread_signal(jact->sem);
@@ -192,6 +218,7 @@ void jwork_process_reqsock(jamstate_t *js)
         {
             if (strcmp(rcmd->cmd, "PONG") == 0)
                 printf("Reply received for ping..\n");
+            command_free(rcmd);
         }
     }
 }
@@ -204,33 +231,33 @@ void jwork_process_subsock(jamstate_t *js)
 {
     // Data is available in the socket..  so timeout value
     // does not make much difference!
-    //  
+    //
     printf("===================== In subsock processing...\n");
     command_t *rcmd = socket_recv_command(js->cstate->subsock, 100);
     printf("Command %s, actid %s.. actname %s\n", rcmd->cmd, rcmd->actid, rcmd->actname);
-    
+
     if (rcmd != NULL)
     {
         if (strcmp(rcmd->cmd, "REXEC-CALL") == 0)
         {
-            if (jwork_duplicate_call(rcmd)) 
+            if (jwork_duplicate_call(rcmd))
             {
                 printf("Duplicate found... \n");
                 command_free(rcmd);
                 return;
             }
-            
-            if (jam_eval_condition(rcmd->actarg)) 
+
+            if (jam_eval_condition(rcmd->actarg))
             {
                 printf("Pushing through the evaluation... \n");
-                
+
                 queue_enq(js->atable->globalinq, rcmd, sizeof(command_t));
                 thread_signal(js->atable->globalsem);
-                
+
                 // rcmd is released in the main thread after consumption
             }
             else
-                command_free(rcmd);            
+                command_free(rcmd);
         }
     }
 }
@@ -243,7 +270,7 @@ void jwork_process_respsock(jamstate_t *js)
     //
     printf("================= In respsock processing.. \n");
     command_t *rcmd = socket_recv_command(js->cstate->respsock, 5000);
-     
+
     if (rcmd != NULL)
     {
         // We can respond to different types of survey questions..
@@ -263,7 +290,7 @@ void jwork_process_respsock(jamstate_t *js)
             socket_send(js->cstate->respsock, result);
             command_free(result);
         }
-        else 
+        else
         if (strcmp(rcmd->cmd, "DSTATUS-REQ") == 0 &&
             strcmp(rcmd->cmd, "FOG") == 0)
         {
@@ -281,15 +308,15 @@ void jwork_process_globaloutq(jamstate_t *js)
 {
     nvoid_t *nv = queue_deq(js->atable->globaloutq);
     if (nv == NULL) return;
-    
+
     command_t *rcmd = (command_t *)nv->data;
     free(nv);
-    // Don't use nvoid_free() .. it is not deep enough 
-    
+    // Don't use nvoid_free() .. it is not deep enough
+
     if (rcmd != NULL)
     {
         printf("Processing cmd: [%s] from GlobalOutQ\n", rcmd->cmd);
-        
+
         // Many commands are in the output queue of the main thread
         // QCMD: ASMBL-FDS LOCAL actname actarg
         if (strcmp(rcmd->cmd, "ASMBL-FDS") == 0 &&
@@ -312,14 +339,24 @@ void jwork_process_globaloutq(jamstate_t *js)
 void jwork_process_actoutq(jamstate_t *js, int indx)
 {
     printf("Indx %d\n", indx);
-    
+
+    printf("-----------------What is life------------------- %p %d\n", js->atable->activities[indx], js->atable->numactivities);
+    //printf("MYSTERY DEEPENS %p\n", js->atable->activities[indx]->outq);
+
+    js->atable->flags[1] = 1;
+    js->atable->turn = 0;
+    while (js->atable->flags[0] && js->atable->turn  == 0)
+    {
+        // busy wait
+    }
     nvoid_t *nv = queue_deq(js->atable->activities[indx]->outq);
+    js->atable->flags[1] = 0;
     if (nv == NULL) return;
-    
+
     command_t *rcmd = (command_t *)nv->data;
     free(nv);
-    // Don't use nvoid_free() .. it is not deep enough 
-    
+    // Don't use nvoid_free() .. it is not deep enough
+
     if (rcmd != NULL)
     {
         // QCMD: LOCAL DEL-ACTIVITY actname actarg
@@ -365,7 +402,7 @@ void jam_send_ping(jamstate_t *js)
 void tcallback(void *arg)
 {
     jactivity_t *jact = (jactivity_t *)arg;
-    
+
     printf("Callback.... \n");
     // stick the "TIMEOUT" message into the queue for the activity
     command_t *tmsg = command_new("TIMEOUT", "__", "ACTIVITY", jact->actid, "__", "");
@@ -379,7 +416,7 @@ void tcallback(void *arg)
 void jam_set_timer(jamstate_t *js, char *actid, int tval)
 {
     jactivity_t *jact = activity_getbyid(js->atable, actid);
-    if (jact != NULL)   
+    if (jact != NULL)
         timer_add_event(js->maintimer, tval, 0, actid, tcallback, jact);
 }
 
@@ -403,16 +440,16 @@ bool jwork_duplicate_call(command_t *cmd)
     static int numentries = 0;
     static int lastentry = 0;
     static char *entries[MAX_DUP_ENTRIES];
-    
+
     int i;
-    
-    for (i = 0; i < numentries; i++) 
+
+    for (i = 0; i < numentries; i++)
     {
         if (strcmp(entries[i], cmd->actid) == 0)
-            return true;                    
+            return true;
     }
-    
-    if (numentries < MAX_DUP_ENTRIES) 
+
+    if (numentries < MAX_DUP_ENTRIES)
         entries[numentries++] = strdup(cmd->actid);
     else
     {
@@ -420,6 +457,6 @@ bool jwork_duplicate_call(command_t *cmd)
         entries[lastentry] = strdup(cmd->actid);
         lastentry = (lastentry + 1) % MAX_DUP_ENTRIES;
     }
-    
+
     return false;
 }

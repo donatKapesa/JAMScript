@@ -90,7 +90,7 @@ void core_do_register(corestate_t *cs, int timeout)
     for (i = 0; i < cs->conf->retries; i++)
     {
         core_register_at_fog(cs, timeout);
-        if (cs->conf->registered) 
+        if (cs->conf->registered)
         {
     #ifdef DEBUG_MSGS
         printf("\t\t Done\n");
@@ -114,7 +114,7 @@ void core_do_register(corestate_t *cs, int timeout)
             }
         }
     }
-    
+
 }
 
 
@@ -126,7 +126,7 @@ bool core_find_fog_from_cloud(corestate_t *cstate, int timeout)
     #ifdef DEBUG_MSGS
         printf("Finding a Fog from Cloud.. \n");
     #endif
-    
+
     // Send a "DISCOVER", "FOG" request to the cloud endpoints
     command_t *scmd = command_new("DISCOVER", "FOG", "dfdf", "0ddfdf", "dfdfdf", "s", cstate->conf->app_name);
 
@@ -146,7 +146,7 @@ bool core_find_fog_from_cloud(corestate_t *cstate, int timeout)
             {
                 if (rcmd->nargs > 0)
                     gotnew = true;
-                   
+
                 // We got Fog addresses.. insert them into the local database
                 // while inserting.. we need to eliminate duplicates.
                 // So we only insert new replies..
@@ -193,7 +193,7 @@ void core_register_at_fog(corestate_t *cs, int timeout)
 
     #ifdef DEBUG_MSGS
         printf("Registering the device at the Fog.. ");
-    #endif   
+    #endif
 
     scmd = command_new("REGISTER", "DEVICE", cs->conf->app_name, cs->conf->device_id, cs->conf->device_name, "");
 
@@ -211,7 +211,7 @@ void core_register_at_fog(corestate_t *cs, int timeout)
             {
             #ifdef DEBUG_MSGS
                 printf("\t\t Done. Got original registration \n");
-            #endif   
+            #endif
                 if (rcmd->nargs > 0 && rcmd->args[0].type == INT_TYPE)
                 {
                     cs->conf->port = rcmd->args[0].val.ival;
@@ -221,11 +221,14 @@ void core_register_at_fog(corestate_t *cs, int timeout)
                     cs->conf->my_fog_server = cs->conf->fog_servers[i];
                     database_put_string(cs->conf->db, "MY_FOG_SERVER", cs->conf->my_fog_server);
 
+                    command_free(rcmd);
+                    command_free(scmd);
                     return;
                 }
                 else
                 {
                     printf("WARNING! Malformed REGISTERED reply received.\n");
+                    command_free(rcmd);
                     continue;
                 }
             }
@@ -254,12 +257,14 @@ void core_register_at_fog(corestate_t *cs, int timeout)
                         database_put_string(cs->conf->db, "DEVICE_ID", cs->conf->device_id);
                     }
 
-
+                    command_free(rcmd);
+                    command_free(scmd);
                     return;
                 }
                 else
                 {
                     printf("WARNING! Malformed REGISTERED reply received.\n");
+                    command_free(rcmd);
                     continue;
                 }
             }
@@ -272,8 +277,8 @@ bool core_do_connect(corestate_t *cs, int timeout)
 {
     #ifdef DEBUG_MSGS
         printf("Setting up the sockets to the Fog..server - %s:%d\n", cs->conf->my_fog_server, cs->conf->port);
-    #endif 
-    
+    #endif
+
     // We already have a port that is allocated for this device.
     // Connect to the Fog at the given port (REQREP)
 
