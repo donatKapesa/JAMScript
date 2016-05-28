@@ -83,6 +83,7 @@ typedef struct _command_t
     cbor_item_t *easy_arr;
     arg_t *args;                            // List of args
     int nargs;                              // length of args array
+    struct alloc_memory_list * cbor_item_list;
 } command_t;
 
 
