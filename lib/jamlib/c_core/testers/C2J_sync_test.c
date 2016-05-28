@@ -8,7 +8,7 @@ void jam_run_app(void *arg)
     
     int i; 
     
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 10000; i++) {
         printf("############################################ i = %d\n", i);
         
     arg_t *res = jam_rexec_sync(js, "test", "sii", "f", 50, 36);
@@ -65,10 +65,8 @@ void callhellofk(void *act, void *arg)
 void taskmain(int argc, char **argv)
 {   
     printf("Test...1 \n");
-    exit(1);
     jamstate_t *js = jam_init();
 
-    exit(1);
     printf("Test...2 \n");
 
     activity_regcallback(js->atable, "hellofk", ASYNC, "sis", callhellofk);

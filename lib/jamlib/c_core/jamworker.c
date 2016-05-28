@@ -59,7 +59,7 @@ void *jwork_bgthread(void *arg)
     jwork_assemble_fds(js);
 
     // heartbeat time is set to 10000 milliseconds
-    int beattime = 10000;
+    int beattime = 1000;
     thread_signal(js->bgsem);
     // get into the event processing..
     int counter = 0;
