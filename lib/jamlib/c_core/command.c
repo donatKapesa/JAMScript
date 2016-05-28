@@ -40,6 +40,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "command.h"
 #include "cborutils.h"
+#include "free_list.h"
 
 
 arg_t *command_arg_clone(arg_t *arg)
@@ -183,7 +184,6 @@ command_t *command_new_using_cbor(const char *cmd, char *opt, char *actname, cha
     });
 
     cmdo->cdata = rmap;
-    cmdo->easy_arr = arr;
     cbor_serialize_alloc(rmap, &(cmdo->buffer), (size_t *)&(cmdo->length));
     return cmdo;
 }
@@ -211,7 +211,7 @@ command_t *command_new(const char *cmd, char *opt, char *actname, char *actid, c
     cbor_item_t *elem;
 
     va_start(args, fmt);
-
+    struct alloc_memory_list * list = init_list_();
     while(*fmt)
     {
         switch(*fmt++)
@@ -244,13 +244,17 @@ command_t *command_new(const char *cmd, char *opt, char *actname, char *actid, c
                 break;
         }
         i++;
-        if (elem)
+        if (elem){
             assert(cbor_array_push(arr, elem) == true);
+            add_to_list_(elem, list);
+          }
     }
+
 
     va_end(args);
 
     command_t *c = command_new_using_cbor(cmd, opt, actname, actid, actarg, arr, qargs, i);
+    c->cbor_item_list = list;
     return c;
 }
 
@@ -389,6 +393,14 @@ void command_free(command_t *cmd)
                         break;
       default: break;
     }
+  }
+
+  if(cmd->cbor_item_list){
+    for(int i = 0; i < cmd->cbor_item_list->size; i++){
+      free(((cbor_item_t *)cmd->cbor_item_list->ptr[i])->data);
+      free(cmd->cbor_item_list->ptr[i]);
+    }
+    list_free(cmd->cbor_item_list);
   }
   free(cmd->args);
   free(cmd);
