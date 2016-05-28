@@ -94,12 +94,13 @@ void jam_event_loop(void *arg)
     {
         task_wait(js->atable->globalsem);  //WHAT signals this? Currently nothing seems to signal it.
         nvoid_t *nv = queue_deq(js->atable->globalinq);
-        printf("Got an event...???\n");
+        #ifdef DEBUG_LVL1
+            printf("Got an event: %s\n", cmd->actname);
+        #endif
         if (nv != NULL)
         {
             cmd = (command_t *)nv->data;
-            printf("Actid in cmd %s\n", cmd->actid);
-          //  free(nv);
+            free(nv);
         } else
             cmd = NULL;
 
@@ -116,7 +117,9 @@ void jam_event_loop(void *arg)
 
                 tr = jam_newtemprecord(js, cmd, areg);
                 //taskcreate(jrun_run_task, tr, STACKSIZE);
-                jrun_run_task(tr);
+                // jrun_run_task(tr);
+               jactivity_t *jact = activity_new(js->atable, cmd->actname);
+               // areg->cback(jact, cmd);
                 printf(">>>>>>> After task create...cmd->actname %s\n", cmd->actname);
             }
         }

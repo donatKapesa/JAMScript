@@ -5,7 +5,6 @@ void jam_run_app(void *arg)
 {
     jamstate_t *js = (jamstate_t *)arg;
             
-    
     int i; 
     
     for (i = 0; i < 10000; i++) {
