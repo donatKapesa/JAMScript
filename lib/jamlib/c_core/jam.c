@@ -63,7 +63,6 @@ jamstate_t *jam_init()
     js->atable->globaloutq = queue_new(true);
 
     js->atable->globalsem = threadsem_new();
-
     js->maintimer = timer_init("maintimer");
 
     js->bgsem = threadsem_new();

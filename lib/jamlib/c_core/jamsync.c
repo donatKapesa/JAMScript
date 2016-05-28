@@ -66,14 +66,7 @@ arg_t *jam_rexec_sync(jamstate_t *js, char *aname, char *fmask, ...)
     }
     va_end(args);
 
-    js->atable->flags[0] = 1;
-    js->atable->turn = 1;
-    while (js->atable->flags[1] && js->atable->turn  == 1)
-    {
-        // busy wait
-    }
     jactivity_t *jact = activity_new(js->atable, aname);
-    js->atable->flags[0] = 0;
 
     command_t *cmd = command_new_using_cbor("REXEC", "SYN", aname, jact->actid, js->cstate->conf->device_id, arr, qargs, i);
 
@@ -90,7 +83,6 @@ arg_t *jam_rexec_sync(jamstate_t *js, char *aname, char *fmask, ...)
     }
     else
     {
-        printf("-----------------DANK ONLY------------------- %p\n", jact->outq);
         arg_t *code = command_arg_clone(jact->code);
         activity_del(js->atable, jact);
         return code;

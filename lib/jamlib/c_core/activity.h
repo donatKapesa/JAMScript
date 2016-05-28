@@ -100,10 +100,6 @@ typedef struct _activitytable_t
     simplequeue_t *globaloutq;
     threadsem_t *globalsem;
 
-
-    int flags[2];
-    int turn;
-
 } activitytable_t;
 
 

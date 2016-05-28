@@ -3,7 +3,6 @@ AR = ar rcs
 CFLAGS =  -DDEBUG_LVL1 -I../. 
 LDFLAGS =  -lcbor -lnanomsg ./libjam.a ./libtask.a
 
-
 all: C2J_async_test C2J_sync_test J2C_async_test J2C_sync_test
 
 

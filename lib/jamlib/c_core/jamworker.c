@@ -75,17 +75,17 @@ void *jwork_bgthread(void *arg)
                 {
                     printf("Sending.. ping %d\n", nfds);
                     jam_send_ping(js);
-                    for(int i = 0; i < js->numpollfds; i++){
-                      printf("Socket Num : %d\n", js->pollfds[i].fd);
+                    for(int i = 0; i < js->numpollfds; i++)
+                    {
+                        printf("Socket Num : %d\n", js->pollfds[i].fd);
                     }
-                    perror("TIMEOUT BECAUSE ");
                     continue;
                 }else if(nfds < 0){
                     printf("ERROR %d\n", errno);
-                    for(int i = 0; i < js->numpollfds; i++){
-                      printf("Socket Num : %d\n", js->pollfds[i].fd);
+                    for(int i = 0; i < js->numpollfds; i++)
+                    {
+                        printf("Socket Num : %d\n", js->pollfds[i].fd);
                     }
-                    perror("Error !");
                     if(counter > 1000){
                       printf("TOO MANY ERRORS. Exiting... \n");
                       exit(1);

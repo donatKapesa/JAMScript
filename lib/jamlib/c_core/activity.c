@@ -35,7 +35,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <time.h>
 #endif
 
-
 char *activity_gettime()
 {
     char buf[64];
@@ -152,8 +151,10 @@ activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name)
 
 jactivity_t *activity_new(activitytable_t *at, char *name)
 {
+    printf("Well this happened\n");
     jactivity_t *jact;
     jact = (jactivity_t *)calloc(1, sizeof(jactivity_t));
+    printf("Pointer of new activity %p\n", jact);
     at->activities[at->numactivities++] = jact;
 
     // Setup the new activity
@@ -165,8 +166,10 @@ jactivity_t *activity_new(activitytable_t *at, char *name)
     jact->actarg = strdup("__");
 
     // Setup the I/O queues
+    printf("Hue\n");
     jact->inq = queue_new(true);
     jact->outq = queue_new(true);
+    printf("Is the Woodpecker Null %p\n", jact->outq);
 
     printf("Creating the message... \n");
     // Send a message to the background so it starts watching for messages
@@ -200,7 +203,6 @@ jactivity_t *activity_getbyid(activitytable_t *at, char *actid)
 void activity_del(activitytable_t *at, jactivity_t *jact)
 {
     int i;
- 
 
     int j = activity_getactindx(at, jact);
 
@@ -213,20 +215,19 @@ void activity_del(activitytable_t *at, jactivity_t *jact)
     printf("Activities Number : %d\n", at->numactivities);
     at->numactivities--;
     printf("Activities Number After : %d\n", at->numactivities);
-    printf("Pointer of Old Activity : %p\n", jact);
     // Send a message to the background so it starts watching for messages
     command_t *cmd = command_new("DELETE-FDS", "LOCAL", jact->name, jact->actid, jact->actarg, "s", "temp");
     queue_enq(at->globaloutq, cmd, sizeof(command_t));
     task_wait(at->globalsem);    
 
+    // remove individual elements of the activity
+    threadsem_free(jact->sem);
     command_arg_free(jact->code);
 
     // delete the queues..
     queue_delete(jact->inq);
     queue_delete(jact->outq);
-    
-   // remove individual elements of the activity
-    threadsem_free(jact->sem);
+
     free(jact->actid);
     free(jact->actarg);
     free(jact);
