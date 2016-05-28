@@ -80,6 +80,7 @@ typedef struct _command_t
     unsigned char *buffer;                  // CBOR byte array in raw byte form
     int length;                             // length of the raw CBOR data
     cbor_item_t *cdata;                     // handle to the CBOR array
+    cbor_item_t *easy_arr;
     arg_t *args;                            // List of args
     int nargs;                              // length of args array
 } command_t;
@@ -96,7 +97,7 @@ void command_print(command_t *cmd);
 /*
  * Arg manipulation functions
  */
-arg_t *command_arg_clone(arg_t *arg); 
+arg_t *command_arg_clone(arg_t *arg);
 void command_arg_free(arg_t *arg);
 void command_arg_print(arg_t *arg);
 

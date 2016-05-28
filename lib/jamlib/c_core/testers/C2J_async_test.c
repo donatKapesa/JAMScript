@@ -4,24 +4,22 @@
 void jam_run_app(void *arg)
 {
     jamstate_t *js = (jamstate_t *)arg;
-            
-    
-    int i; 
-    
+
+
+    int i;
+
     for (i = 0; i < 10; i++) {
         printf("############################################ i = %d\n", i);
-        
+
     arg_t *res = jam_rexec_sync(js, "test", "sii", "f", 50, 36);
-    
     if (res == NULL)
         printf("Nothing come out...\n");
     else
     if (res->type == INT_TYPE)
         printf("*********************************\n HEEEEHAAAAAA... Results = %d \n*********************************\n", res->val.ival);
-
+    command_arg_free(res);
 
     res = jam_rexec_sync(js, "testfg2", "sii", "f", 1250, 36);
-    
     if (res == NULL)
          printf("Nothing come out...\n");
     else
@@ -30,7 +28,8 @@ void jam_run_app(void *arg)
     else
     if (res->type == STRING_TYPE)
         printf("Error code %s\n", res->val.sval);
-        
+    command_arg_free(res);
+
     res = jam_rexec_sync(js, "testfg", "sii", "f", 1250, 36);
 
     if (res == NULL)
@@ -41,8 +40,9 @@ void jam_run_app(void *arg)
     else
     if (res->type == STRING_TYPE)
         printf("Error code %s\n", res->val.sval);
-        
+    command_arg_free(res);
     }
+
 }
 
 
@@ -57,13 +57,13 @@ void hellofk(char *s, int x, char *e)
 void callhellofk(void *act, void *arg)
 {
     command_t *cmd = (command_t *)arg;
-    hellofk(cmd->args[0].val.sval, cmd->args[1].val.ival, cmd->args[2].val.sval);    
+    hellofk(cmd->args[0].val.sval, cmd->args[1].val.ival, cmd->args[2].val.sval);
 }
 
 
 
 void taskmain(int argc, char **argv)
-{   
+{
     jamstate_t *js = jam_init();
 
     activity_regcallback(js->atable, "hellofk", ASYNC, "sis", callhellofk);

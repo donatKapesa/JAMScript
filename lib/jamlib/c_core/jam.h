@@ -55,10 +55,10 @@ typedef struct _jamstate_t
 
     struct nn_pollfd *pollfds;
     int numpollfds;
-    
+
     timertype_t *maintimer;
     threadsem_t *bgsem;
-    
+
     int maxleases;
 
 } jamstate_t;

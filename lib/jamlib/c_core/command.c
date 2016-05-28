@@ -46,9 +46,9 @@ arg_t *command_arg_clone(arg_t *arg)
 {
     arg_t *val = (arg_t *)calloc(1, sizeof(arg_t));
     assert(val != NULL);
-    
+
     val->type = arg->type;
-    switch (arg->type) 
+    switch (arg->type)
     {
         case INT_TYPE:
             val->val.ival = arg->val.ival;
@@ -63,7 +63,7 @@ arg_t *command_arg_clone(arg_t *arg)
             val->val.nval = nvoid_new(arg->val.nval->data, arg->val.nval->len);
             return val;
     }
-    
+
     return NULL;
 }
 
@@ -134,7 +134,7 @@ command_t *command_new_using_cbor(const char *cmd, char *opt, char *actname, cha
     cmdo->actname = strdup(actname);
     cmdo->actid = strdup(actid);
     cmdo->actarg = strdup(actarg);
-
+    cmdo->easy_arr = NULL;
     cmdo->args = args;
     cmdo->nargs = nargs;
 
@@ -163,7 +163,7 @@ command_t *command_new_using_cbor(const char *cmd, char *opt, char *actname, cha
         .key = cbor_move(cbor_build_string("actname")),
         .value = cbor_move(cbor_build_string(actname))
     });
-    
+
     // Add the actid field to the map
     cbor_map_add(rmap, (struct cbor_pair) {
         .key = cbor_move(cbor_build_string("actid")),
@@ -183,7 +183,7 @@ command_t *command_new_using_cbor(const char *cmd, char *opt, char *actname, cha
     });
 
     cmdo->cdata = rmap;
-
+    cmdo->easy_arr = arr;
     cbor_serialize_alloc(rmap, &(cmdo->buffer), (size_t *)&(cmdo->length));
     return cmdo;
 }
@@ -201,11 +201,11 @@ command_t *command_new(const char *cmd, char *opt, char *actname, char *actid, c
     nvoid_t *nv;
     arg_t *qargs;
     int i = 0;
-    
+
     if (strlen(fmt) > 0)
         qargs = (arg_t *)calloc(strlen(fmt), sizeof(arg_t));
     else
-        qargs = NULL;        
+        qargs = NULL;
 
     cbor_item_t *arr = cbor_new_indefinite_array();
     cbor_item_t *elem;
@@ -362,19 +362,36 @@ command_t *command_from_data(char *fmt, nvoid_t *data)
 
 void command_free(command_t *cmd)
 {
-    // free the field allocations
-    free(cmd->cmd);
-    free(cmd->opt);
-    free(cmd->actname);
-    free(cmd->actarg);
-    
-    // TODO: What else? Something is missing here..
+  // free the field allocations
+  free(cmd->cmd);
+  free(cmd->opt);
+  free(cmd->actname);
+  free(cmd->actid);
+  free(cmd->actarg);
+  free(cmd->buffer);
 
-    // decrement the reference to the CBOR object..
-    if (cmd->cdata)
-        cbor_decref(&cmd->cdata);
-    free(cmd->args);
-    free(cmd);
+  // TODO: What else? Something is missing here..
+  // Yeah, we need to free a few more things
+
+  // decrement the reference to the CBOR object..
+
+  if (cmd->cdata){
+      cbor_decref(&cmd->cdata);
+  }
+
+  for(int i = 0; i < cmd->nargs; i++){
+    switch(cmd->args[i].type){
+      case STRING_TYPE: free(cmd->args[i].val.sval);
+                        break;
+      case NVOID_TYPE:
+                        if(cmd->args[i].val.nval != NULL)
+                          nvoid_free(cmd->args[i].val.nval);
+                        break;
+      default: break;
+    }
+  }
+  free(cmd->args);
+  free(cmd);
 }
 
 
@@ -415,7 +432,7 @@ bool only_one_null(void *p, void *q)
     if (p != NULL && q == NULL)
         return true;
 
-    return false;           
+    return false;
 }
 
 
@@ -427,7 +444,7 @@ bool string_equal(char *p, char *q)
     if (strcmp(p, q) == 0)
         return true;
     else
-        return false;    
+        return false;
 }
 
 bool command_equal(command_t *f, command_t *s)
@@ -435,7 +452,7 @@ bool command_equal(command_t *f, command_t *s)
     if (only_one_null(f->cmd, s->cmd))
         return false;
     if (only_one_null(f->opt, s->opt))
-        return false;       
+        return false;
     if (only_one_null(f->actname, s->actname))
         return false;
     if (only_one_null(f->actid, s->actid))
@@ -448,7 +465,7 @@ bool command_equal(command_t *f, command_t *s)
         return false;
     if (only_one_null(f->args, s->args))
         return false;
-        
+
     if (string_equal(f->cmd, s->cmd) &&
         string_equal(f->opt, s->opt) &&
         string_equal(f->actname, s->actname) &&
@@ -458,6 +475,6 @@ bool command_equal(command_t *f, command_t *s)
         return true;
     else
         return false;
-    
+
     return false;
 }

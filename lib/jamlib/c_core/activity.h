@@ -67,8 +67,8 @@ typedef struct _jactivity_t
 
     enum activity_state_t state;
     enum activity_type_t type;
-            
-    threadsem_t *sem;   
+
+    threadsem_t *sem;
     char *actid;
     char *actarg;
     arg_t *code;
@@ -83,9 +83,9 @@ typedef struct _activity_callback_reg_t
     char name[MAX_NAME_LEN];
     char signature[MAX_NAME_LEN];
     activitycallback_f cback;
-    
+
     enum activity_type_t type;
-    
+
 } activity_callback_reg_t;
 
 
@@ -99,6 +99,10 @@ typedef struct _activitytable_t
     simplequeue_t *globalinq;
     simplequeue_t *globaloutq;
     threadsem_t *globalsem;
+
+
+    int flags[2];
+    int turn;
 
 } activitytable_t;
 

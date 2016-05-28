@@ -68,6 +68,8 @@ simplequeue_t *queue_new(bool ownedbyq)
 		if (nn_bind(sq->pullsock, buf) >= 0) {
 			sq->name = strdup(buf);
 			break;
+		}else{
+			sq->name = NULL;
 		}
 	}
 
@@ -79,7 +81,7 @@ simplequeue_t *queue_new(bool ownedbyq)
 	#ifdef DEBUG_LVL1
 		printf("Queue created at %s.. pullsock %d, pushsock %d\n", sq->name, sq->pushsock, sq->pullsock);
 	#endif
-		
+
 	return sq;
 }
 
@@ -91,7 +93,8 @@ bool queue_delete(simplequeue_t *sq)
 
 	rc = nn_close(sq->pullsock);
 	assert(rc == 0);
-		
+
+	free(sq->name);
 	free(sq);
 
 	return true;
@@ -118,6 +121,7 @@ bool queue_enq(simplequeue_t *sq, void *data, int size)
 	int bytes = nn_send (sq->pushsock, dw, dwsize, 0);
 	free(dw);
 
+	printf("PUshedddd..............%d bytes \n", bytes);
 	if (bytes == dwsize)
 		return true;
 	else
@@ -128,6 +132,9 @@ nvoid_t *queue_deq(simplequeue_t *sq)
 {
 	char *buf = NULL;
 	int bytes = nn_recv (sq->pullsock, &buf, NN_MSG, 0);
+
+	printf("=================>>>>> Bytes %d\n", bytes);
+
 
 	if (bytes < 0) return NULL;
 
