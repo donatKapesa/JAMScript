@@ -1,0 +1,16 @@
+May 29th Testing
+
+= Registration not reused. This is seems like a bug. 
+        Check why the registration is not reused. Need to fix this one.
+                
+= C2J Asynchronous is having a memory freed spuriously type of bug  
+    = Only showing up very infrequently! Arrgh! Another hard to track bug!
+    = Sometimes we get invalid file handles the array of FDs
+    
+= J2C Need to test properly. Full protocol is not yet implemented for
+    Asychronous version.
+    
+= Implement the synchronous version!
+
+
+   
