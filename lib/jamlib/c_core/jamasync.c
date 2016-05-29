@@ -116,7 +116,7 @@ void jam_async_runner(jamstate_t *js, jactivity_t *jact, command_t *cmd)
     // stick the error code in the activity
     if (strcmp(rcmd->cmd, "REXEC-ACK") == 0)
     {
-        jact->code = command_arg_clone(&(rcmd->args[0]));
+        jact->code = NULL;
         jact->state = EXEC_STARTED; 
     }
     else

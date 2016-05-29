@@ -8,39 +8,36 @@ void jam_run_app(void *arg)
 
     int i;
 
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i <5; i++) 
+    {
         printf("############################################ i = %d\n", i);
 
-    arg_t *res = jam_rexec_sync(js, "test", "sii", "f", 50, 36);
-    if (res == NULL)
-        printf("Nothing come out...\n");
-    else
-    if (res->type == INT_TYPE)
-        printf("*********************************\n HEEEEHAAAAAA... Results = %d \n*********************************\n", res->val.ival);
-    command_arg_free(res);
+        jactivity_t *res = jam_rexec_async(js, "test", "sii", "f", 50, 36);
+        if (res == NULL)
+            printf("Some error occuredd...\n");
+        else
+        if (res->state == NEW)
+            printf("A new activity created...  \n");
+        else 
+            printf("Some other error....%d\n", res->state);
 
-    res = jam_rexec_sync(js, "testfg2", "sii", "f", 1250, 36);
-    if (res == NULL)
-         printf("Nothing come out...\n");
-    else
-    if (res->type == INT_TYPE)
-        printf("*********************************\n HEEEEHAAAAAA... Results = %d \n*********************************\n", res->val.ival);
-    else
-    if (res->type == STRING_TYPE)
-        printf("Error code %s\n", res->val.sval);
-    command_arg_free(res);
-
-    res = jam_rexec_sync(js, "testfg", "sii", "f", 1250, 36);
-
-    if (res == NULL)
-            printf("Nothing come out...\n");
-    else
-    if (res->type == INT_TYPE)
-        printf("*********************************\n HEEEEHAAAAAA... Results = %d \n*********************************\n", res->val.ival);
-    else
-    if (res->type == STRING_TYPE)
-        printf("Error code %s\n", res->val.sval);
-    command_arg_free(res);
+        res = jam_rexec_async(js, "testfg2", "sii", "f", 50, 36);
+        if (res == NULL)
+            printf("Some error occuredd...\n");
+        else
+        if (res->state == NEW)
+            printf("A new activity created...  \n");
+        else 
+            printf("Some other error....%d\n", res->state);
+        
+        res = jam_rexec_async(js, "testfg", "sii", "f", 50, 36);
+        if (res == NULL)
+            printf("Some error occuredd...\n");
+        else
+        if (res->state == NEW)
+            printf("A new activity created...  \n");
+        else 
+            printf("Some other error....%d\n", res->state);
     }
 
 }
