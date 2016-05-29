@@ -151,12 +151,8 @@ activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name)
 
 jactivity_t *activity_new(activitytable_t *at, char *name)
 {
-    printf("Well this happened\n");
-    jactivity_t *jact;
-    jact = (jactivity_t *)calloc(1, sizeof(jactivity_t));
-    printf("Pointer of new activity %p\n", jact);
-    at->activities[at->numactivities++] = jact;
-
+    jactivity_t *jact = (jactivity_t *)calloc(1, sizeof(jactivity_t));
+    
     // Setup the new activity
     jact->state = NEW;
     strcpy(jact->name, name);
@@ -166,14 +162,15 @@ jactivity_t *activity_new(activitytable_t *at, char *name)
     jact->actarg = strdup("__");
 
     // Setup the I/O queues
-    printf("Hue\n");
     jact->inq = queue_new(true);
     jact->outq = queue_new(true);
-    printf("Is the Woodpecker Null %p\n", jact->outq);
+    
+    printf("Pointer of new activity %p\n", jact);
+    at->activities[at->numactivities++] = jact;
 
     printf("Creating the message... \n");
     // Send a message to the background so it starts watching for messages
-    command_t *cmd = command_new("ASMBL-FDS", "LOCAL", name, jact->actid, jact->actarg, "s", "__");
+    command_t *cmd = command_new("INCREASE-FDS", "LOCAL", name, jact->actid, jact->actarg, "i", at->numactivities);
 
     printf("Sending it.. \n");
 
@@ -212,11 +209,8 @@ void activity_del(activitytable_t *at, jactivity_t *jact)
             at->activities[i] = at->activities[i+1];
     }
 
-    printf("Activities Number : %d\n", at->numactivities);
-    at->numactivities--;
-    printf("Activities Number After : %d\n", at->numactivities);
     // Send a message to the background so it starts watching for messages
-    command_t *cmd = command_new("DELETE-FDS", "LOCAL", jact->name, jact->actid, jact->actarg, "s", "temp");
+    command_t *cmd = command_new("DELETE-FDS", "LOCAL", jact->name, jact->actid, jact->actarg, "i", (at->numactivities - 1));
     queue_enq(at->globaloutq, cmd, sizeof(command_t));
     task_wait(at->globalsem);    
 

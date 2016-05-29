@@ -98,6 +98,7 @@ void jam_async_runner(jamstate_t *js, jactivity_t *jact, command_t *cmd);
  * Functions defined in jamworker.c
  */
 void *jwork_bgthread(void *arg);
+void jwork_reassemble_fds(jamstate_t *js, int nam);
 void jwork_assemble_fds(jamstate_t *js);
 int jwork_wait_fds(jamstate_t *js, int beattime);
 void jwork_processor(jamstate_t *js);

@@ -36,8 +36,8 @@ void jrun_run_task(void *arg)
 {
     temprecord_t *trec = (temprecord_t *)arg;
     jamstate_t *js = (jamstate_t *)trec->arg1;
-    activity_callback_reg_t *creg = (activity_callback_reg_t *)trec->arg2;
-    command_t *cmd = (command_t *)trec->arg3;
+    command_t *cmd = (command_t *)trec->arg2;
+    activity_callback_reg_t *creg = (activity_callback_reg_t *)trec->arg3;
     
     free(arg);          // free the temprecord... we don't need it
 
@@ -46,7 +46,7 @@ void jrun_run_task(void *arg)
     //
     if (!jrun_check_signature(creg, cmd))
         return;
-     
+    
     // Otherwise, we are going to run the task...
     // Create an activity
     jactivity_t *jact = activity_new(js->atable, cmd->actname);

@@ -116,10 +116,7 @@ void jam_event_loop(void *arg)
                 printf("COmmand actname = %s\n", cmd->actname);
 
                 tr = jam_newtemprecord(js, cmd, areg);
-                //taskcreate(jrun_run_task, tr, STACKSIZE);
-                // jrun_run_task(tr);
-               jactivity_t *jact = activity_new(js->atable, cmd->actname);
-               // areg->cback(jact, cmd);
+                taskcreate(jrun_run_task, tr, STACKSIZE);
                 printf(">>>>>>> After task create...cmd->actname %s\n", cmd->actname);
             }
         }

@@ -102,6 +102,13 @@ void *jwork_bgthread(void *arg)
 }
 
 
+void jwork_reassemble_fds(jamstate_t *js, int nam)
+{
+    js->atable->numactivities = nam;
+    jwork_assemble_fds(js);
+}
+
+
 // Put the FDs in a particular order..
 //
 //
@@ -130,6 +137,7 @@ void jwork_assemble_fds(jamstate_t *js)
     // scan the number of activities and get their input queue hooked
     for (i = 0; i < js->atable->numactivities; i++)
     {
+        printf("i = %d\n", i);
         js->pollfds[i+4].fd = js->atable->activities[i]->outq->pullsock;
     }
     printf("DONE.................................\n");
@@ -308,20 +316,19 @@ void jwork_process_globaloutq(jamstate_t *js)
 
     if (rcmd != NULL)
     {
-        printf("Processing cmd: [%s] from GlobalOutQ\n", rcmd->cmd);
+        printf("Processing cmd: [%s] from GlobalOutQ.. %d\n", rcmd->cmd, rcmd->args[0].val.ival);
 
         // Many commands are in the output queue of the main thread
-        // QCMD: ASMBL-FDS LOCAL actname actarg
         if (strcmp(rcmd->opt, "LOCAL") == 0)
         {
-            jwork_assemble_fds(js);
+            jwork_reassemble_fds(js, rcmd->args[0].val.ival);
             if (strcmp(rcmd->cmd, "DELETE-FDS") == 0) 
                 thread_signal(js->atable->globalsem);
         }
         else
             socket_send(js->cstate->reqsock, rcmd);
 
-        command_free(rcmd);
+        //command_free(rcmd);
     }
 }
 
@@ -345,14 +352,7 @@ void jwork_process_actoutq(jamstate_t *js, int indx)
 
     if (rcmd != NULL)
     {
-        // QCMD: LOCAL DEL-ACTIVITY actname actarg
-        // Otherwise, send it to the reqsock
-        if (strcmp(rcmd->cmd, "LOCAL") == 0 &&
-            strcmp(rcmd->opt, "DEL-ACTIVITY") == 0)
-            jwork_assemble_fds(js);
-        else
-            socket_send(js->cstate->reqsock, rcmd);
-
+        socket_send(js->cstate->reqsock, rcmd);
         command_free(rcmd);
     }
 }
