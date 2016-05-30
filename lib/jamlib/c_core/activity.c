@@ -152,7 +152,7 @@ activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name)
 jactivity_t *activity_new(activitytable_t *at, char *name)
 {
     jactivity_t *jact = (jactivity_t *)calloc(1, sizeof(jactivity_t));
-    
+
     // Setup the new activity
     jact->state = NEW;
     strcpy(jact->name, name);
@@ -164,7 +164,7 @@ jactivity_t *activity_new(activitytable_t *at, char *name)
     // Setup the I/O queues
     jact->inq = queue_new(true);
     jact->outq = queue_new(true);
-    
+
     printf("Pointer of new activity %p\n", jact);
     at->activities[at->numactivities++] = jact;
 
@@ -212,7 +212,9 @@ void activity_del(activitytable_t *at, jactivity_t *jact)
     // Send a message to the background so it starts watching for messages
     command_t *cmd = command_new("DELETE-FDS", "LOCAL", jact->name, jact->actid, jact->actarg, "i", (at->numactivities - 1));
     queue_enq(at->globaloutq, cmd, sizeof(command_t));
-    task_wait(at->globalsem);    
+    printf("\n\n---------------------NOOOOOOOOOOOOOOOOOOOOOOOOOO----------------------\n\n");
+    task_wait(at->delete_sem);
+    printf("\n\n---------------------YEEEEEEEEEEEEEEEEEEEEEEEEES----------------------\n\n");
 
     // remove individual elements of the activity
     threadsem_free(jact->sem);

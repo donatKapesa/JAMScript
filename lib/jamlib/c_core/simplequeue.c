@@ -28,6 +28,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <string.h>
 #include <assert.h>
 
+#ifdef linux
+#include <bsd/stdlib.h>
+#endif
+
 #include "nvoid.h"
 
 #include "simplequeue.h"

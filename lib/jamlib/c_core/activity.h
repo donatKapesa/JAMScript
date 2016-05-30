@@ -99,6 +99,7 @@ typedef struct _activitytable_t
     simplequeue_t *globalinq;
     simplequeue_t *globaloutq;
     threadsem_t *globalsem;
+    threadsem_t *delete_sem;
 
 } activitytable_t;
 

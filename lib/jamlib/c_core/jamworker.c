@@ -59,8 +59,10 @@ void *jwork_bgthread(void *arg)
     jwork_assemble_fds(js);
 
     // heartbeat time is set to 10000 milliseconds
-    int beattime = 1000;
+    int beattime = 10000;
+    printf("-------------WHY WHY WHY ------------\n");
     thread_signal(js->bgsem);
+    printf("-------------I need a drink -----------\n");
     // get into the event processing..
     int counter = 0;
     while (1)
@@ -322,8 +324,11 @@ void jwork_process_globaloutq(jamstate_t *js)
         if (strcmp(rcmd->opt, "LOCAL") == 0)
         {
             jwork_reassemble_fds(js, rcmd->args[0].val.ival);
-            if (strcmp(rcmd->cmd, "DELETE-FDS") == 0) 
-                thread_signal(js->atable->globalsem);
+            if (strcmp(rcmd->cmd, "DELETE-FDS") == 0) {
+                printf("----------------SIGNAL--------------------\n");
+                thread_signal(js->atable->delete_sem);
+                printf("----------------UNLOCKED--------------------\n");
+              }
         }
         else
             socket_send(js->cstate->reqsock, rcmd);

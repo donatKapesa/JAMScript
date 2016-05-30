@@ -29,6 +29,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "activity.h"
 
+#ifdef linux
+#include <bsd/stdlib.h>
+#endif
+
 #include <strings.h>
 #include <pthread.h>
 
@@ -63,6 +67,8 @@ jamstate_t *jam_init()
     js->atable->globaloutq = queue_new(true);
 
     js->atable->globalsem = threadsem_new();
+    js->atable->delete_sem = threadsem_new();
+    
     js->maintimer = timer_init("maintimer");
 
     js->bgsem = threadsem_new();
@@ -72,9 +78,10 @@ jamstate_t *jam_init()
         perror("ERROR! Unable to start the jamworker thread");
         exit(1);
     }
+    printf("\n\n--------------PLEASE WORK---------------\n\n");
     task_wait(js->bgsem);
     #ifdef DEBUG_LVL1
-        printf("\t\t Done.");
+        printf("\n ------------------------Done.-------------------------\n");
     #endif
     return js;
 }
@@ -92,11 +99,10 @@ void jam_event_loop(void *arg)
 
     while (1)
     {
-        task_wait(js->atable->globalsem);  //WHAT signals this? Currently nothing seems to signal it.
+        printf("-----------------I SMELL VICTORY--------------------\n");
+        task_wait(js->atable->globalsem);
+        printf("-----------------??????-----------------------------\n");
         nvoid_t *nv = queue_deq(js->atable->globalinq);
-        #ifdef DEBUG_LVL1
-            printf("Got an event: %s\n", cmd->actname);
-        #endif
         if (nv != NULL)
         {
             cmd = (command_t *)nv->data;

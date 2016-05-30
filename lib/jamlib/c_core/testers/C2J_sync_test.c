@@ -4,14 +4,15 @@
 void jam_run_app(void *arg)
 {
     jamstate_t *js = (jamstate_t *)arg;
-            
-    int i; 
-    
+
+    int i;
+
     for (i = 0; i < 100000; i++) {
         printf("############################################ i = %d\n", i);
-        
+
     arg_t *res = jam_rexec_sync(js, "test", "sii", "f", 50, 36);
-    
+    printf("\n--------------COUNT : %d --------------------------\n", i);
+
     if (res == NULL)
         printf("Nothing come out...\n");
     else
@@ -20,7 +21,7 @@ void jam_run_app(void *arg)
 
 
     res = jam_rexec_sync(js, "testfg2", "sii", "f", 1250, 36);
-    
+
     if (res == NULL)
          printf("Nothing come out...\n");
     else
@@ -29,7 +30,7 @@ void jam_run_app(void *arg)
     else
     if (res->type == STRING_TYPE)
         printf("Error code %s\n", res->val.sval);
-        
+
     res = jam_rexec_sync(js, "testfg", "sii", "f", 1250, 36);
 
     if (res == NULL)
@@ -40,13 +41,14 @@ void jam_run_app(void *arg)
     else
     if (res->type == STRING_TYPE)
         printf("Error code %s\n", res->val.sval);
-        
+
     }
+
 }
 
 
 void taskmain(int argc, char **argv)
-{   
+{
     jamstate_t *js = jam_init();
 
     // Start the event loop in another thread.. with cooperative threads.. we
