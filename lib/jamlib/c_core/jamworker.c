@@ -57,11 +57,6 @@ void *jwork_bgthread(void *arg)
 
     // assemble the poller.. insert the FDs that should go into the poller
     jwork_assemble_fds(js);
-    printf("----------------------WHAT--------------------\n");
-    for(int i = 0; i < js->numpollfds; i++)
-    {
-        printf("Socket Num START: %d\n", js->pollfds[i].fd);
-    }
     // heartbeat time is set to 10000 milliseconds
     int beattime = 500;
     thread_signal(js->bgsem);
@@ -70,21 +65,12 @@ void *jwork_bgthread(void *arg)
     while (1)
     {
         printf("\n\n COUNTER %d \n\n", counter++);
-        if(counter > 20)
-          exit(1);
+
+        //if(counter > 20)
+          //exit(1);
         //wait on the poller
-        printf("Activity Number Before: %d\n", js->atable->numactivities);
-        for(int i = 0; i < js->numpollfds; i++)
-        {
-          printf("Socket Num BEFORE %d\n", js->pollfds[i].fd);
-        }
-        int *temp_cpy = (struct nn_pollfd *)calloc(js->numpollfds, sizeof(struct nn_pollfd));
         //memcpy(temp_cpy, js->poll)
         int nfds = jwork_wait_fds(js, beattime);
-        for(int i = 0; i < js->numpollfds; i++)
-        {
-          printf("Socket Num AFTER %d\n", js->pollfds[i].fd);
-        }
         printf("Activity Number After: %d\n", js->atable->numactivities);
         if (nfds == 0){
             printf("Sending.. ping %d\n", nfds);
@@ -112,15 +98,7 @@ void *jwork_bgthread(void *arg)
     #ifdef DEBUG_LVL1
         printf("Calling the JAM worker processor.. \n");
     #endif
-        for(int i = 0; i < js->numpollfds; i++)
-        {
-          printf("Socket Num DAMN THIS TO HELL: %d\n", js->pollfds[i].fd);
-        }
         jwork_processor(js);
-        for(int i = 0; i < js->numpollfds; i++)
-        {
-            printf("Socket Num END: %d\n", js->pollfds[i].fd);
-        }
     }
 
     return NULL;
@@ -163,15 +141,8 @@ void jwork_assemble_fds(jamstate_t *js)
     // scan the number of activities and get their input queue hooked
     for (i = 0; i < js->atable->numactivities; i++)
         js->pollfds[i+4].fd = js->atable->activities[i]->outq->pullsock;
-
-    printf("DONE.................................\n");
-
     // pollfds structure is not complete..
     js->numpollfds = 4 + js->atable->numactivities;
-    for (i = 0; i < js->atable->numactivities; i++)
-    {
-        printf("Socket Num %d: %d\n", i, NN_POLLIN);
-    }
 }
 
 
@@ -220,7 +191,6 @@ void jwork_process_reqsock(jamstate_t *js)
     printf("----- In request sock.. \n");
 
     command_t *rcmd = socket_recv_command(js->cstate->reqsock, 5000);
-
     printf("Actname %s\n", rcmd->actname);
 
     if (rcmd != NULL)
@@ -353,9 +323,7 @@ void jwork_process_globaloutq(jamstate_t *js)
             printf("Processing...........\n");
             jwork_reassemble_fds(js, rcmd->args[0].val.ival);
             if (strcmp(rcmd->cmd, "DELETE-FDS") == 0) {
-                printf("----------------SIGNAL--------------------\n");
                 thread_signal(js->atable->delete_sem);
-                printf("----------------UNLOCKED--------------------\n");
               }
         }
         else

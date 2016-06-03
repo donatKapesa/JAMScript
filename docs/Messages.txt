@@ -177,7 +177,7 @@ activity with the given actid.
 Remote Execution from J to C (Asynchronous)
 ==========================================
 
-[[ REXEC-CALL ASY actname runid/__ expression args ]] (published)
+[[ REXEC-CALL ASY actname runid expression args ]] (published)
 
 [[ REXEC-RDY ASY actname actid runid ]] 
 
@@ -190,31 +190,38 @@ Remote Execution from J to C (Asynchronous)
 Obtaining Execution Reports from the Fog and Devices
 ====================================================
 
-Execution reports are necessary part of the protocol used by JAMScript.
-Fog or devices could be asking for status reports after or just before a lease on an
-ongoing activity execution is to expire. 
 
-[[ REPORT-REQ DEVICE actname actid __ ]]
+[[ REPORT-REQ  SYN EVENTLOOP __ runid ]]
 
-The device is requesting a report from the Fog on the execution of a particular activity.
 
-[[ REPORT-REP FOG actname actid __ message-type-code message-arg ]]
 
-The reply from the Fog could tell the device many things: extension of the lease (LEASE-EXT), or 
-activity completed successfully (COMPLETE-SUC), completed erroneously (COMPLETE-ERR).
-The second argument (message-arg) is the parameter for this one.
 
-Like the devices, the Fog can request execution reports from the devices as well.
 
-[[ REPORT-REQ FOG actname __ runid ]]
+        Execution reports are necessary part of the protocol used by JAMScript.
+        Fog or devices could be asking for status reports after or just before a lease on an
+        ongoing activity execution is to expire. 
 
-The Fog is sending out a survey asking which devices are still working on the particular activity.
-May be we need another ID type to indicate whether a particular instance of an activity is still working.
+        [[ REPORT-REQ DEVICE actname actid __ ]]
 
-[[ REPORT-REP DEVICE actname actid message-type-code message-arg ]]
+        The device is requesting a report from the Fog on the execution of a particular activity.
 
-This is same as the previous case. However, the way it is delivered is different. In this case,
-we are replying to a survey. 
+        [[ REPORT-REP FOG actname actid __ message-type-code message-arg ]]
+
+        The reply from the Fog could tell the device many things: extension of the lease (LEASE-EXT), or 
+        activity completed successfully (COMPLETE-SUC), completed erroneously (COMPLETE-ERR).
+        The second argument (message-arg) is the parameter for this one.
+
+        Like the devices, the Fog can request execution reports from the devices as well.
+
+        [[ REPORT-REQ FOG actname __ runid ]]
+
+        The Fog is sending out a survey asking which devices are still working on the particular activity.
+        May be we need another ID type to indicate whether a particular instance of an activity is still working.
+
+        [[ REPORT-REP DEVICE actname actid message-type-code message-arg ]]
+
+        This is same as the previous case. However, the way it is delivered is different. In this case,
+        we are replying to a survey. 
 
 
 Terminating Execution Commands in Fog and Devices

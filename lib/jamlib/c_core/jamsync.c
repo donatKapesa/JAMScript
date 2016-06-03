@@ -19,7 +19,6 @@ arg_t *jam_rexec_sync(jamstate_t *js, char *aname, char *fmask, ...)
     arg_t *qargs;
 
     assert(fmask != NULL);
-    printf("\n\n----------------I AM BIG------------------\n\n");
     if (strlen(fmask) > 0)
         qargs = (arg_t *)calloc(strlen(fmask), sizeof(arg_t));
     else
@@ -69,7 +68,6 @@ arg_t *jam_rexec_sync(jamstate_t *js, char *aname, char *fmask, ...)
           }
     }
     va_end(args);
-    printf("\n\n-------------------------LIFE IS GOOD-------------------------\n\n");
     jactivity_t *jact = activity_new(js->atable, aname);
 
     command_t *cmd = command_new_using_cbor("REXEC", "SYN", aname, jact->actid, js->cstate->conf->device_id, arr, qargs, i);
@@ -78,20 +76,17 @@ arg_t *jam_rexec_sync(jamstate_t *js, char *aname, char *fmask, ...)
         printf("Starting JAM exec runner... \n");
     #endif
 
-    printf("\n\n----------------MASTER DEBUGGER-------------------------\n\n");
     jam_sync_runner(js, jact, cmd);
-
+    
     if (jact->state == EXEC_TIMEDOUT)
     {
         activity_del(js->atable, jact);
-        printf("\n\n------------SEGFAULT SEGFAULT ALL DAY--------------\n\n");
         return NULL;
     }
     else
     {
         arg_t *code = command_arg_clone(jact->code);
         activity_del(js->atable, jact);
-        printf("\n\n------------------SEGFAULT SEGFAULT ALL DAY-------------------\n\n");
         return code;
     }
 }

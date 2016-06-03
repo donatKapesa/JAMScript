@@ -59,6 +59,8 @@ activitytable_t *activity_table_new()
     assert(atbl != NULL);
 
     atbl->numactivities = 0;
+    atbl->numshadowacts = 0;
+
     atbl->numcbackregs = 0;
 
     return atbl;
@@ -138,12 +140,17 @@ bool activity_regcallback(activitytable_t *at, char *name, int type, char *sig, 
 }
 
 
-activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name)
+activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name, char *opt)
 {
     int i;
+    int type;
+    if(strcmp(opt, "ASY") == 0)
+      type = ASYNC;
+    else
+      type = SYNC;
 
     for (i = 0; i < at->numcbackregs; i++)
-        if (strcmp(at->callbackregs[i]->name, name) == 0)
+        if ((strcmp(at->callbackregs[i]->name, name) == 0) && at->callbackregs[i]->type == type)
             return at->callbackregs[i];
 
     return NULL;
@@ -165,12 +172,13 @@ jactivity_t *activity_new(activitytable_t *at, char *name)
     jact->inq = queue_new(true);
     jact->outq = queue_new(true);
     printf("Pointer of new activity %p\n", jact);
-    at->activities[at->numactivities++] = jact;
-    printf("-------------------------------------I FEEL THE RACE CONDITION %d %d--------------------------------------------\n", jact->outq->pullsock, at->numactivities);
+
+    at->activities[at->numshadowacts++] = jact;
 
     printf("Creating the message... \n");
     // Send a message to the background so it starts watching for messages
-    command_t *cmd = command_new("INCREASE-FDS", "LOCAL", name, jact->actid, jact->actarg, "i", at->numactivities);
+    command_t *cmd = command_new("INCREASE-FDS", "LOCAL", name, jact->actid, jact->actarg, "i", at->numshadowacts);
+
     printf("Sending it.. \n");
 
     queue_enq(at->globaloutq, cmd, sizeof(command_t));
@@ -188,7 +196,7 @@ jactivity_t *activity_getbyid(activitytable_t *at, char *actid)
 {
     int i;
 
-    for (i = 0; i < at->numactivities; i++)
+    for (i = 0; i < at->numshadowacts; i++)
     {
         if (strcmp(at->activities[i]->actid, actid) == 0)
             return at->activities[i];
@@ -202,18 +210,16 @@ void activity_del(activitytable_t *at, jactivity_t *jact)
 
     int j = activity_getactindx(at, jact);
 
-    for (i = j; i < at->numactivities; i++)
+    for (i = j; i < at->numshadowacts; i++)
     {
-        if (i < (at->numactivities - 1))
+        if (i < (at->numshadowacts - 1))
             at->activities[i] = at->activities[i+1];
     }
-
+    at->numshadowacts--;
     // Send a message to the background so it starts watching for messages
-    command_t *cmd = command_new("DELETE-FDS", "LOCAL", jact->name, jact->actid, jact->actarg, "i", (at->numactivities - 1));
+    command_t *cmd = command_new("DELETE-FDS", "LOCAL", jact->name, jact->actid, jact->actarg, "i", at->numshadowacts);
     queue_enq(at->globaloutq, cmd, sizeof(command_t));
-    printf("\n\n---------------------NOOOOOOOOOOOOOOOOOOOOOOOOOO----------------------\n\n");
     task_wait(at->delete_sem);
-    printf("\n\n---------------------YEEEEEEEEEEEEEEEEEEEEEEEEES----------------------\n\n");
 
     // remove individual elements of the activity
     threadsem_free(jact->sem);
@@ -233,7 +239,7 @@ int activity_getactindx(activitytable_t *at, jactivity_t *jact)
 {
     int i;
 
-    for (i = 0; i < at->numactivities; i++)
+    for (i = 0; i < at->numshadowacts; i++)
         if (at->activities[i] == jact)
             return i;
     return -1;

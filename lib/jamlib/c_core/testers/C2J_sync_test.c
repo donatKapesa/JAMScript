@@ -11,13 +11,16 @@ void jam_run_app(void *arg)
         printf("############################################ i = %d\n", i);
 
     arg_t *res = jam_rexec_sync(js, "test", "sii", "f", 50, 36);
-    printf("\n--------------COUNT : %d --------------------------\n", i);
 
     if (res == NULL)
         printf("Nothing come out...\n");
-    else
+    else{
     if (res->type == INT_TYPE)
         printf("*********************************\n HEEEEHAAAAAA... Results = %d \n*********************************\n", res->val.ival);
+    printf("--------MASTER DEBUGGER IN ACTION---------------\n");
+    if (res->type == STRING_TYPE)
+        printf("Error code %s\n", res->val.sval);
+    }
 
     command_arg_free(res);
     res = jam_rexec_sync(js, "testfg2", "sii", "f", 1250, 36);

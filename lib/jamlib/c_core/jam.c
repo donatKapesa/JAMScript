@@ -68,7 +68,7 @@ jamstate_t *jam_init()
 
     js->atable->globalsem = threadsem_new();
     js->atable->delete_sem = threadsem_new();
-    
+
     js->maintimer = timer_init("maintimer");
 
     js->bgsem = threadsem_new();
@@ -99,9 +99,7 @@ void jam_event_loop(void *arg)
 
     while (1)
     {
-        printf("-----------------I SMELL VICTORY--------------------\n");
         task_wait(js->atable->globalsem);
-        printf("-----------------??????-----------------------------\n");
         nvoid_t *nv = queue_deq(js->atable->globalinq);
         if (nv != NULL)
         {
@@ -112,7 +110,7 @@ void jam_event_loop(void *arg)
 
         if (cmd != NULL)
         {
-            areg = activity_findcallback(js->atable, cmd->actname);
+            areg = activity_findcallback(js->atable, cmd->actname, cmd->opt);
             if (areg == NULL)
             {
                 printf("Function not found.. \n");
