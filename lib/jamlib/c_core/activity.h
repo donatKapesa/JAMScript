@@ -116,7 +116,7 @@ void activity_callbackreg_print(activity_callback_reg_t *areg);
 void activity_print(jactivity_t *ja);
 
 bool activity_regcallback(activitytable_t *at, char *name, int type, char *sig, activitycallback_f cback);
-activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name);
+activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name, char *opt);
 
 jactivity_t *activity_new(activitytable_t *atbl, char *name);
 
