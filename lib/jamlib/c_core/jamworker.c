@@ -68,6 +68,9 @@ void *jwork_bgthread(void *arg)
     while (1)
     {
         printf("\n\n COUNTER %d \n\n", counter++);
+        
+        if (counter > 61) exit(0);
+        
         // wait on the poller
         printf("Activity Number Before: %d\n", js->atable->numactivities);
         int nfds = jwork_wait_fds(js, beattime);

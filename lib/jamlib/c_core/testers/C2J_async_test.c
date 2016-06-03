@@ -8,7 +8,7 @@ void jam_run_app(void *arg)
 
     int i;
 
-    for (i = 0; i <5; i++) 
+    for (i = 0; i <20; i++) 
     {
         printf("############################################ i = %d\n", i);
 

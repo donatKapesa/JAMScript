@@ -92,6 +92,7 @@ typedef struct _activity_callback_reg_t
 typedef struct _activitytable_t
 {
     int numactivities;
+    int numshadowacts;
     int numcbackregs;
     activity_callback_reg_t *callbackregs[MAX_ACTIVITIES];
     jactivity_t *activities[MAX_ACTIVITIES];
