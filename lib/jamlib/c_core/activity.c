@@ -164,14 +164,13 @@ jactivity_t *activity_new(activitytable_t *at, char *name)
     // Setup the I/O queues
     jact->inq = queue_new(true);
     jact->outq = queue_new(true);
-
     printf("Pointer of new activity %p\n", jact);
     at->activities[at->numactivities++] = jact;
+    printf("-------------------------------------I FEEL THE RACE CONDITION %d %d--------------------------------------------\n", jact->outq->pullsock, at->numactivities);
 
     printf("Creating the message... \n");
     // Send a message to the background so it starts watching for messages
     command_t *cmd = command_new("INCREASE-FDS", "LOCAL", name, jact->actid, jact->actarg, "i", at->numactivities);
-
     printf("Sending it.. \n");
 
     queue_enq(at->globaloutq, cmd, sizeof(command_t));

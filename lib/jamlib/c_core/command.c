@@ -42,6 +42,26 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "cborutils.h"
 #include "free_list.h"
 
+struct alloc_memory_list *init_list_(){
+  struct alloc_memory_list *ret = calloc(1, sizeof(alloc_list));
+  ret->ptr = calloc(2, sizeof(void *));
+  ret->max = _DEFAULT_SIZE_;
+  ret->size = 0;
+  return ret;
+}
+
+void add_to_list_(void * ptr, struct alloc_memory_list * list){
+  if(list->size == list->max){
+    list->max *= 2;
+    list->ptr = realloc(list->ptr, sizeof(void *) * list->max);
+  }
+  list->ptr[list->size++] = ptr;
+}
+
+void list_free(struct alloc_memory_list * list){
+  free(list->ptr);
+  free(list);
+}
 
 arg_t *command_arg_clone(arg_t *arg)
 {
@@ -250,7 +270,6 @@ command_t *command_new(const char *cmd, char *opt, char *actname, char *actid, c
           }
     }
 
-
     va_end(args);
 
     command_t *c = command_new_using_cbor(cmd, opt, actname, actid, actarg, arr, qargs, i);
@@ -397,7 +416,8 @@ void command_free(command_t *cmd)
 
   if(cmd->cbor_item_list){
     for(int i = 0; i < cmd->cbor_item_list->size; i++){
-      free(((cbor_item_t *)cmd->cbor_item_list->ptr[i])->data);
+      if(cbor_typeof(cmd->cbor_item_list->ptr[i]) == CBOR_TYPE_STRING)
+        free(((cbor_item_t *)cmd->cbor_item_list->ptr[i])->data);
       free(cmd->cbor_item_list->ptr[i]);
     }
     list_free(cmd->cbor_item_list);

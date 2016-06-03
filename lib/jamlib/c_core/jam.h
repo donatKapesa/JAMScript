@@ -36,7 +36,6 @@ extern "C" {
 #include "activity.h"
 #include "timer.h"
 #include "command.h"
-
 #include <pthread.h>
 
 #include "task.h"

@@ -57,47 +57,70 @@ void *jwork_bgthread(void *arg)
 
     // assemble the poller.. insert the FDs that should go into the poller
     jwork_assemble_fds(js);
-
+    printf("----------------------WHAT--------------------\n");
+    for(int i = 0; i < js->numpollfds; i++)
+    {
+        printf("Socket Num START: %d\n", js->pollfds[i].fd);
+    }
     // heartbeat time is set to 10000 milliseconds
-    int beattime = 10000;
-    printf("-------------WHY WHY WHY ------------\n");
+    int beattime = 500;
     thread_signal(js->bgsem);
-    printf("-------------I need a drink -----------\n");
     // get into the event processing..
     int counter = 0;
     while (1)
     {
         printf("\n\n COUNTER %d \n\n", counter++);
-        // wait on the poller
+        if(counter > 20)
+          exit(1);
+        //wait on the poller
         printf("Activity Number Before: %d\n", js->atable->numactivities);
+        for(int i = 0; i < js->numpollfds; i++)
+        {
+          printf("Socket Num BEFORE %d\n", js->pollfds[i].fd);
+        }
+        int *temp_cpy = (struct nn_pollfd *)calloc(js->numpollfds, sizeof(struct nn_pollfd));
+        //memcpy(temp_cpy, js->poll)
         int nfds = jwork_wait_fds(js, beattime);
-
+        for(int i = 0; i < js->numpollfds; i++)
+        {
+          printf("Socket Num AFTER %d\n", js->pollfds[i].fd);
+        }
         printf("Activity Number After: %d\n", js->atable->numactivities);
-        if (nfds == 0)
-                {
-                    printf("Sending.. ping %d\n", nfds);
-                    jam_send_ping(js);
-                    for(int i = 0; i < js->numpollfds; i++)
-                    {
-                        printf("Socket Num : %d\n", js->pollfds[i].fd);
+        if (nfds == 0){
+            printf("Sending.. ping %d\n", nfds);
+            jam_send_ping(js);
+            for(int i = 0; i < js->numpollfds; i++)
+                printf("Socket Num : %d\n", js->pollfds[i].fd);
+            continue;
+        }else if(nfds < 0){
+            printf("ERROR %d\n", errno);
+            perror("ERROR is");
+            for(int i = 0; i < js->numpollfds; i++){
+                printf("Socket Num : %d\n", js->pollfds[i].fd);
+                if(js->pollfds[i].fd < 0 || js->pollfds[i].fd > 100){
+                    printf("SOCKET NUMBER CORRUPTION\n");
+                    sleep(1000);
+                    //exit(2);
                     }
-                    continue;
-                }else if(nfds < 0){
-                    printf("ERROR %d\n", errno);
-                    for(int i = 0; i < js->numpollfds; i++)
-                    {
-                        printf("Socket Num : %d\n", js->pollfds[i].fd);
-                    }
-                    if(counter > 1000){
-                      printf("TOO MANY ERRORS. Exiting... \n");
-                      exit(1);
-                    }
-                }
+            }
+            if(counter > 1000){
+                printf("TOO MANY ERRORS. Exiting... \n");
+                exit(1);
+            }
+        }
 
     #ifdef DEBUG_LVL1
         printf("Calling the JAM worker processor.. \n");
     #endif
+        for(int i = 0; i < js->numpollfds; i++)
+        {
+          printf("Socket Num DAMN THIS TO HELL: %d\n", js->pollfds[i].fd);
+        }
         jwork_processor(js);
+        for(int i = 0; i < js->numpollfds; i++)
+        {
+            printf("Socket Num END: %d\n", js->pollfds[i].fd);
+        }
     }
 
     return NULL;
@@ -124,8 +147,9 @@ void jwork_assemble_fds(jamstate_t *js)
 
     js->pollfds = (struct nn_pollfd *)calloc((4 + js->atable->numactivities), sizeof(struct nn_pollfd));
 
-    for (i = 0; i < 4 + js->atable->numactivities; i++)
+    for (i = 0; i < 4 + js->atable->numactivities; i++){
         js->pollfds[i].events = NN_POLLIN;
+      }
 
     // pick the external sockets: REQ, PUB, and SURV
     // TODO:
@@ -138,14 +162,16 @@ void jwork_assemble_fds(jamstate_t *js)
 
     // scan the number of activities and get their input queue hooked
     for (i = 0; i < js->atable->numactivities; i++)
-    {
-        printf("i = %d\n", i);
         js->pollfds[i+4].fd = js->atable->activities[i]->outq->pullsock;
-    }
+
     printf("DONE.................................\n");
 
     // pollfds structure is not complete..
     js->numpollfds = 4 + js->atable->numactivities;
+    for (i = 0; i < js->atable->numactivities; i++)
+    {
+        printf("Socket Num %d: %d\n", i, NN_POLLIN);
+    }
 }
 
 
@@ -215,6 +241,7 @@ void jwork_process_reqsock(jamstate_t *js)
             // Send it to the activity and unblock the activity
             queue_enq(jact->inq, rcmd, sizeof(command_t));
             thread_signal(jact->sem);
+            printf("-------------Needs to be Freed-------------\n");
         }
         else
         if (strcmp(rcmd->actname, "PINGER") == 0)
@@ -323,6 +350,7 @@ void jwork_process_globaloutq(jamstate_t *js)
         // Many commands are in the output queue of the main thread
         if (strcmp(rcmd->opt, "LOCAL") == 0)
         {
+            printf("Processing...........\n");
             jwork_reassemble_fds(js, rcmd->args[0].val.ival);
             if (strcmp(rcmd->cmd, "DELETE-FDS") == 0) {
                 printf("----------------SIGNAL--------------------\n");
@@ -333,7 +361,7 @@ void jwork_process_globaloutq(jamstate_t *js)
         else
             socket_send(js->cstate->reqsock, rcmd);
 
-        //command_free(rcmd);
+        command_free(rcmd);
     }
 }
 

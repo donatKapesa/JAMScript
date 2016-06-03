@@ -19,7 +19,7 @@ void jam_run_app(void *arg)
     if (res->type == INT_TYPE)
         printf("*********************************\n HEEEEHAAAAAA... Results = %d \n*********************************\n", res->val.ival);
 
-
+    command_arg_free(res);
     res = jam_rexec_sync(js, "testfg2", "sii", "f", 1250, 36);
 
     if (res == NULL)
@@ -30,7 +30,7 @@ void jam_run_app(void *arg)
     else
     if (res->type == STRING_TYPE)
         printf("Error code %s\n", res->val.sval);
-
+    command_arg_free(res);
     res = jam_rexec_sync(js, "testfg", "sii", "f", 1250, 36);
 
     if (res == NULL)
@@ -42,8 +42,8 @@ void jam_run_app(void *arg)
     if (res->type == STRING_TYPE)
         printf("Error code %s\n", res->val.sval);
 
+    command_arg_free(res);
     }
-
 }
 
 

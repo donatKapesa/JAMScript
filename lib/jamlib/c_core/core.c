@@ -270,6 +270,7 @@ void core_register_at_fog(corestate_t *cs, int timeout)
             }
         }
     }
+    command_free(scmd);
 }
 
 

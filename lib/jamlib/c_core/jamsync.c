@@ -4,7 +4,7 @@
 #include <strings.h>
 #include <string.h>
 #include <pthread.h>
-
+#include "free_list.h"
 
 //
 // TODO: Is there a better way to write this code?
@@ -27,6 +27,7 @@ arg_t *jam_rexec_sync(jamstate_t *js, char *aname, char *fmask, ...)
 
     cbor_item_t *arr = cbor_new_indefinite_array();
     cbor_item_t *elem;
+    struct alloc_memory_list *list = init_list_();
 
     va_start(args, fmask);
 
@@ -62,15 +63,17 @@ arg_t *jam_rexec_sync(jamstate_t *js, char *aname, char *fmask, ...)
                 break;
         }
         i++;
-        if (elem)
+        if (elem){
             assert(cbor_array_push(arr, elem) == true);
+            add_to_list_(elem, list);
+          }
     }
     va_end(args);
     printf("\n\n-------------------------LIFE IS GOOD-------------------------\n\n");
     jactivity_t *jact = activity_new(js->atable, aname);
 
     command_t *cmd = command_new_using_cbor("REXEC", "SYN", aname, jact->actid, js->cstate->conf->device_id, arr, qargs, i);
-
+    cmd->cbor_item_list = list;
     #ifdef DEBUG_LVL1
         printf("Starting JAM exec runner... \n");
     #endif

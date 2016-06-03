@@ -5,6 +5,7 @@
 #include <strings.h>
 #include <string.h>
 #include <pthread.h>
+#include "free_list.h"
 
 
 jactivity_t *jam_rexec_async(jamstate_t *js, char *aname, char *fmask, ...)
@@ -23,6 +24,7 @@ jactivity_t *jam_rexec_async(jamstate_t *js, char *aname, char *fmask, ...)
 
     cbor_item_t *arr = cbor_new_indefinite_array();
     cbor_item_t *elem;
+    struct alloc_memory_list *list = init_list_();
 
     va_start(args, fmask);
 
@@ -59,8 +61,10 @@ jactivity_t *jam_rexec_async(jamstate_t *js, char *aname, char *fmask, ...)
                 break;
         }
         i++;
-        if (elem != NULL)
+        if (elem != NULL){
             assert(cbor_array_push(arr, elem) == true);
+            add_to_list_(elem, list);
+          }
     }
     va_end(args);
 
@@ -68,6 +72,7 @@ jactivity_t *jam_rexec_async(jamstate_t *js, char *aname, char *fmask, ...)
     jactivity_t *jact = activity_new(js->atable, aname);
 
     command_t *cmd = command_new_using_cbor("REXEC", "ASY", aname, jact->actid, js->cstate->conf->device_id, arr, qargs, i);
+    cmd->cbor_item_list = list;
 
     temprecord_t *trec = jam_newtemprecord(js, jact, cmd);
     taskcreate(jam_rexec_run_wrapper, trec, STACKSIZE);
@@ -125,4 +130,5 @@ void jam_async_runner(jamstate_t *js, jactivity_t *jact, command_t *cmd)
         jact->code = command_arg_clone(&(rcmd->args[0]));
         jact->state = EXEC_ABORTED;
     }
+    command_free(rcmd);
 }
