@@ -46,7 +46,7 @@ char *activity_gettime()
     #ifdef linux
         struct timespec tp;
         clock_gettime(CLOCK_MONOTONIC, &tp);
-        sprintf(buf, "");
+        sprintf(buf, "%li", tp.tv_nsec);
         return strdup(buf);
     #endif
     return 0;
