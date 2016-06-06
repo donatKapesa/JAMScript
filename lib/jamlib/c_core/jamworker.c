@@ -65,7 +65,7 @@ void *jwork_bgthread(void *arg)
     //int counter = 0;
     while (1)
     {
-      //  printf("\n\n COUNTER %d \n\n", counter++);
+     //  printf("\n\n COUNTER %d \n\n", counter++);
 
         int nfds = jwork_wait_fds(js, beattime);
       //  printf("Activity Number After: %d\n", js->atable->numactivities);
@@ -172,7 +172,7 @@ void jwork_process_reqsock(jamstate_t *js)
     // TODO: What about the timeout value.. it could be inconsequential
     printf("----- In request sock.......... \n");
     command_t *rcmd = socket_recv_command(js->cstate->reqsock, 5000);
-    printf("%p\n", rcmd);
+    printf("Command %s, %s\n", rcmd->cmd, rcmd->actname);
     if (rcmd != NULL)
     {
         if (strcmp(rcmd->actname, "EVENTLOOP") == 0)
@@ -191,8 +191,7 @@ void jwork_process_reqsock(jamstate_t *js)
             queue_enq(jact->inq, rcmd, sizeof(command_t));
             thread_signal(jact->sem);
         }
-        else
-        if (strcmp(rcmd->actname, "PINGER") == 0)
+        else if (strcmp(rcmd->actname, "PINGER") == 0)
         {
             if (strcmp(rcmd->cmd, "PONG") == 0)
                 printf("Reply received for ping..\n");
@@ -250,7 +249,7 @@ void jwork_process_respsock(jamstate_t *js)
     // is not critical.. why wait for timeout?
     //
     command_t *rcmd = socket_recv_command(js->cstate->respsock, 5000);
-    printf("================= In respsock processing.. cmd: %s, opt: %s\n", rcmd->cmd, rcmd->opt);
+    printf("====================================== In respsock processing.. cmd: %s, opt: %s\n", rcmd->cmd, rcmd->opt);
 
     if (rcmd != NULL)
     {
@@ -304,7 +303,7 @@ void jwork_process_globaloutq(jamstate_t *js)
         // Many commands are in the output queue of the main thread
         if (strcmp(rcmd->opt, "LOCAL") == 0)
         {
-            printf("Processing...........\n");
+            printf("Processing........... %s \n", rcmd->cmd);
 
             if (strcmp(rcmd->cmd, "COMPL-ACT") == 0)
             {
@@ -342,7 +341,7 @@ void jwork_process_globaloutq(jamstate_t *js)
 
 void jwork_process_actoutq(jamstate_t *js, int indx)
 {
-    printf("WHAT Indx %d\n", indx);
+    printf("Indx %d\n", indx);
 
     nvoid_t *nv = queue_deq(js->atable->activities[indx]->outq);
     if (nv == NULL) return;
@@ -384,7 +383,7 @@ void tcallback(void *arg)
     command_t *tmsg = command_new("TIMEOUT", "__", "ACTIVITY", jact->actid, "__", "");
     queue_enq(jact->inq, tmsg, sizeof(command_t));
     // do a signal on the thread semaphore for the activity
-
+    printf("Callback Occuring... \n");
     thread_signal(jact->sem);
 }
 

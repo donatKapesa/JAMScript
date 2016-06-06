@@ -169,7 +169,7 @@ jactivity_t *activity_new(activitytable_t *at, char *name)
     jact->sem = threadsem_new();
     jact->actid = activity_gettime();
     jact->actarg = strdup("__");
-    
+
     // Save the task ID.. this is specific to libtask..
     jact->taskid = taskid();
 
@@ -183,7 +183,7 @@ jactivity_t *activity_new(activitytable_t *at, char *name)
     printf("Creating the message... \n");
     // Send a message to the background so it starts watching for messages
     command_t *cmd = command_new("INCREASE-FDS", "LOCAL", name, jact->actid, jact->actarg, "i", at->numshadowacts);
-
+    //command_free(cmd);
     printf("Sending it.. \n");
 
     queue_enq(at->globaloutq, cmd, sizeof(command_t));
@@ -280,15 +280,15 @@ void activity_timeout(jactivity_t *jact)
 void activity_complete(activitytable_t *at, char *fmt, ...)
 {
     va_list args;
-    
+
     // Find the activity
     jactivity_t *jact = activity_getmyactivity(at);
-    command_t *scmd;    
-    
+    command_t *scmd;
+
     if (strlen(fmt) == 0)
         scmd = command_new("COMPL-ACT", "LOCAL", jact->name, jact->actid, jact->actarg, "");
-    else 
-    {       
+    else
+    {
         va_start(args, fmt);
         switch(*fmt)
         {
@@ -296,33 +296,33 @@ void activity_complete(activitytable_t *at, char *fmt, ...)
                 printf("Format for byte array... \n");
                 scmd = command_new("COMPL-ACT", "LOCAL", jact->name, jact->actid, jact->actarg, "b", va_arg(args, nvoid_t*));
                 break;
-            
+
             case 's':
                 printf("Format for string..... \n");
-            
-                scmd = command_new("COMPL-ACT", "LOCAL", jact->name, jact->actid, jact->actarg, "s", va_arg(args, char *));        
+
+                scmd = command_new("COMPL-ACT", "LOCAL", jact->name, jact->actid, jact->actarg, "s", va_arg(args, char *));
                 break;
-            
+
             case 'i':
                 printf("Format for integer..... \n");
-            
-                scmd = command_new("COMPL-ACT", "LOCAL", jact->name, jact->actid, jact->actarg, "i", va_arg(args, int));        
+
+                scmd = command_new("COMPL-ACT", "LOCAL", jact->name, jact->actid, jact->actarg, "i", va_arg(args, int));
                 break;
-            
+
             case 'd':
             case 'f':
                 printf("Format for real..... \n");
-            
-                scmd = command_new("COMPL-ACT", "LOCAL", jact->name, jact->actid, jact->actarg, "d", va_arg(args, double));                
+
+                scmd = command_new("COMPL-ACT", "LOCAL", jact->name, jact->actid, jact->actarg, "d", va_arg(args, double));
         }
-        va_end(args);        
+        va_end(args);
     }
-    
+
     queue_enq(at->globaloutq, scmd, sizeof(command_t));
     // TODO: do we have to use another semaphore?
     // TODO: check??
     task_wait(at->delete_sem);
-    
+
     // Now.. delete the activity.
     activity_del(at, jact);
 }

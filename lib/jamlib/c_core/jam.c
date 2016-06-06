@@ -59,7 +59,7 @@ jamstate_t *jam_init()
 
     // Initialization of the activity and task tables
     js->atable = activity_table_new();
-    
+
     js->rtable = jwork_runtable_new();
 
     // Queue initialization
@@ -119,7 +119,7 @@ void jam_event_loop(void *arg)
             }
             else
             {
-                printf("COmmand actname = %s\n", cmd->actname);
+                printf("Command actname = %s\n", cmd->actname);
 
                 tr = jam_newtemprecord(js, cmd, areg);
                 taskcreate(jrun_run_task, tr, STACKSIZE);
