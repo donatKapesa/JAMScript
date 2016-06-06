@@ -52,7 +52,7 @@ void jrun_run_task(void *arg)
     // Otherwise, we are going to run the task...
     // Create an activity
     jactivity_t *jact = activity_new(js->atable, cmd->actname);
-
+    free(jact->actarg);
     jact->actarg = strdup(cmd->actid);
     jact->taskid = taskid();
 
@@ -83,6 +83,8 @@ void jrun_run_task(void *arg)
 
             creg->cback(jact, cmd);
         }
-        return;
+        command_free(rcmd);
     }
+    command_free(cmd);
+    activity_del(js->atable ,jact);
 }

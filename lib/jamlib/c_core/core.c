@@ -223,12 +223,14 @@ void core_register_at_fog(corestate_t *cs, int timeout)
 
                     command_free(rcmd);
                     command_free(scmd);
+                    socket_free(sock);
                     return;
                 }
                 else
                 {
                     printf("WARNING! Malformed REGISTERED reply received.\n");
                     command_free(rcmd);
+                    socket_free(sock);
                     continue;
                 }
             }
@@ -259,12 +261,14 @@ void core_register_at_fog(corestate_t *cs, int timeout)
 
                     command_free(rcmd);
                     command_free(scmd);
+                    socket_free(sock);
                     return;
                 }
                 else
                 {
                     printf("WARNING! Malformed REGISTERED reply received.\n");
                     command_free(rcmd);
+                    socket_free(sock);
                     continue;
                 }
             }

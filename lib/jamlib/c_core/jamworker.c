@@ -220,20 +220,19 @@ void jwork_process_subsock(jamstate_t *js)
             // No distinction is made between the SYNC and ASYNC calls here.
             // They are both passed to the jam_event_loop in jam.c
             // There we separate the two and process them differently.
-
+            /*
             if (jwork_runtable_check(js->rtable, rcmd))
             {
                 printf("Duplicate found... \n");
                 command_free(rcmd);
                 return;
-            }
+            }*/
 
             if (jam_eval_condition(rcmd->actarg))
             {
 
                 queue_enq(js->atable->globalinq, rcmd, sizeof(command_t));
                 thread_signal(js->atable->globalsem);
-
                 // rcmd is released in the main thread after consumption
             }
             else
