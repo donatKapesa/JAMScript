@@ -65,7 +65,7 @@ void *jwork_bgthread(void *arg)
     int counter = 0;
     while (1)
     {
-      //  printf("\n\n COUNTER %d \n\n", counter++);
+       printf("\n\n COUNTER %d \n\n", counter++);
 
         int nfds = jwork_wait_fds(js, beattime);
       //  printf("Activity Number After: %d\n", js->atable->numactivities);
