@@ -324,5 +324,5 @@ void activity_complete(activitytable_t *at, char *fmt, ...)
     task_wait(at->delete_sem);
 
     // Now.. delete the activity.
-    activity_del(at, jact);
+    //activity_del(at, jact);
 }

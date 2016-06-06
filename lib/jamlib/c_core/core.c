@@ -255,6 +255,7 @@ void core_register_at_fog(corestate_t *cs, int timeout)
                     // Get the new device ID and store it as well..
                     if (rcmd->args[1].val.sval != NULL)
                     {
+                        free(cs->conf->device_id);
                         cs->conf->device_id = strdup(rcmd->args[1].val.sval);
                         database_put_string(cs->conf->db, "DEVICE_ID", cs->conf->device_id);
                     }

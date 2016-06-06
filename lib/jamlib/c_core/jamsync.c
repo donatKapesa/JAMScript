@@ -77,7 +77,7 @@ arg_t *jam_rexec_sync(jamstate_t *js, char *aname, char *fmask, ...)
     #endif
 
     jam_sync_runner(js, jact, cmd);
-    
+
     if (jact->state == EXEC_TIMEDOUT)
     {
         activity_del(js->atable, jact);

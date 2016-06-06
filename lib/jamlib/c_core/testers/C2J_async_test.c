@@ -20,7 +20,7 @@ void jam_run_app(void *arg)
             printf("A new activity created...  \n");
         else
             printf("Some other error....%d\n", res->state);
-          
+
         res = jam_rexec_async(js, "testfg2", "sii", "f", 50, 36);
         if (res == NULL)
             printf("Some error occuredd...\n");
