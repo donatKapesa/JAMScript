@@ -1,6 +1,6 @@
 CC = clang -Wall -g 
 AR = ar rcs
-CFLAGS =  -DDEBUG_LVL1 
+# CFLAGS =  -DDEBUG_LVL1 
 LDFLAGS = libcbor.a -lnanomsg -ltask 
 
 OBJECTS = activity.o simplequeue.o command.o coreconf.o core.o jam.o jamworker.o jamrunner.o \

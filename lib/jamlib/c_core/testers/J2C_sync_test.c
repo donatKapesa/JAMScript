@@ -1,11 +1,7 @@
 #include "jam.h"
 #include "command.h"
 
-void jam_run_app(void *arg)
-{
-    jamstate_t *js = (jamstate_t *)arg;
-}
-
+jamstate_t *js;
 
 void hellofk(char *s, int x, char *e)
 {
@@ -19,13 +15,15 @@ void callhellofk(void *act, void *arg)
 {
     command_t *cmd = (command_t *)arg;
     hellofk(cmd->args[0].val.sval, cmd->args[1].val.ival, cmd->args[2].val.sval);
+    
+    printf("Completing....\n");
+    activity_complete(js->atable, "i", 10);
 }
-
 
 
 void taskmain(int argc, char **argv)
 {
-    jamstate_t *js = jam_init();
+    js = jam_init();
 
     activity_regcallback(js->atable, "hellofk", SYNC, "sis", callhellofk);
 
@@ -33,7 +31,5 @@ void taskmain(int argc, char **argv)
     // to yield for that thread to start running
     taskcreate(jam_event_loop, js, STACKSIZE);
 
-    // create the application runner
-    //taskcreate(jam_run_app, js, STACKSIZE);
     printf("In main......................... \n");
 }

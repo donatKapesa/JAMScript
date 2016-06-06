@@ -43,7 +43,27 @@ extern "C" {
 
 
 #define STACKSIZE                   50000
-#define MAX_DUP_ENTRIES             256
+#define MAX_RUN_ENTRIES             256
+
+
+typedef struct _runtableentry_t
+{
+    char *runid;
+    char *actname;
+    char *actid;
+    int status;
+    arg_t *code;
+    
+} runtableentry_t;
+
+
+typedef struct _runtable_t
+{
+    int numruns;
+    runtableentry_t *entries[MAX_RUN_ENTRIES];
+    
+} runtable_t;
+
 
 typedef struct _jamstate_t
 {
@@ -51,6 +71,8 @@ typedef struct _jamstate_t
     corestate_t *cstate;
     pthread_t bgthread;
     activitytable_t *atable;
+    
+    runtable_t *rtable;
 
     struct nn_pollfd *pollfds;
     int numpollfds;
@@ -116,7 +138,9 @@ void jam_set_timer(jamstate_t *js, char *actarg, int tval);
 void jam_clear_timer(jamstate_t *js, char *actid);
 
 bool jam_eval_condition(char *expr);
-bool jwork_duplicate_call(command_t *cmd);
+runtable_t *jwork_runtable_new();
+void jwork_runid_complete(runtable_t *rtab, char *runid, arg_t *arg);
+bool jwork_runtable_check(runtable_t *rtable,  command_t *cmd);
 
 /*
  * Functions defined in jamrunner.c

@@ -69,6 +69,7 @@ typedef struct _jactivity_t
     enum activity_type_t type;
 
     threadsem_t *sem;
+    int taskid;
     char *actid;
     char *actarg;
     arg_t *code;
@@ -121,11 +122,14 @@ activity_callback_reg_t *activity_findcallback(activitytable_t *at, char *name, 
 jactivity_t *activity_new(activitytable_t *atbl, char *name);
 
 jactivity_t *activity_getbyid(activitytable_t *at, char *actid);
+jactivity_t *activity_getmyactivity(activitytable_t *at);
 
 void activity_start(jactivity_t *act);
 void activity_timeout(jactivity_t *act);
 
 void activity_del(activitytable_t *at, jactivity_t *jact);
 int activity_getactindx(activitytable_t *at, jactivity_t *jact);
+
+void activity_complete(activitytable_t *at, char *fmt, ...);
 
 #endif

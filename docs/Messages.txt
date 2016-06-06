@@ -149,7 +149,11 @@ Remote Execution from J to C (Synchronous)
 
 [[ REXEC-RDY SYN actname actid runid ]] 
 
-[[ REXEC-STA SYN EVENTLOOP actid runid ]]
+[[ REXEC-STA SYN EVENTLOOP actid runid survey_port (arg0)]]
+
+[[ REXEC-QUI SYN EVENTLOOP actid runid survey_port (arg0)]]
+
+
 
 
 [[ REXEC FOG actname expression args (sent over publish) ]]
@@ -190,10 +194,14 @@ Remote Execution from J to C (Asynchronous)
 Obtaining Execution Reports from the Fog and Devices
 ====================================================
 
-
 [[ REPORT-REQ  SYN EVENTLOOP __ runid ]]
 
+[[ REPORT-REP FIN actname deviceid runid res (arg0)]
+                res is a single object
 
+NOTE: There is no continuation message. We report back only
+when there is a positive completion. If there is a problem, just
+keep quiet. The receiver would correctly infer a problem.
 
 
 

@@ -61,7 +61,11 @@ simplequeue_t *queue_new(bool ownedbyq)
 	simplequeue_t *sq = (simplequeue_t *)calloc(1, sizeof(simplequeue_t));
 	assert(sq != NULL);
 	sq->pullsock = nn_socket(AF_SP, NN_PULL);
-	assert(sq->pullsock >= 0);
+	if (sq->pullsock < 0) 
+	{
+		printf("\n\nFATAL ERROR!! Unable to allocate file handles. \nUse 'ulimit' to increase available FDs \n\n");
+		exit(1);
+	}
 
 	// try to create a socket.. find a name that is not already used
 	while(1) {
@@ -125,7 +129,6 @@ bool queue_enq(simplequeue_t *sq, void *data, int size)
 	int bytes = nn_send (sq->pushsock, dw, dwsize, 0);
 	free(dw);
 
-	printf("PUshedddd..............%d bytes \n", bytes);
 	if (bytes == dwsize)
 		return true;
 	else
@@ -137,13 +140,9 @@ nvoid_t *queue_deq(simplequeue_t *sq)
 	char *buf = NULL;
 	int bytes = nn_recv (sq->pullsock, &buf, NN_MSG, 0);
 
-	printf("=================>>>>> Bytes %d\n", bytes);
-
-
 	if (bytes < 0) return NULL;
 
 	if (bytes != sizeof(nvoid_t)) {
-		printf("Bytes %d\n", bytes);
 		nn_freemsg(buf);
 		return NULL;
 	}

@@ -91,6 +91,9 @@ arg_t *command_arg_clone(arg_t *arg)
 
 void command_arg_free(arg_t *arg)
 {
+    if (arg == NULL)
+        return;
+
     switch (arg->type)
     {
         case STRING_TYPE:

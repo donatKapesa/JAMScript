@@ -59,6 +59,8 @@ jamstate_t *jam_init()
 
     // Initialization of the activity and task tables
     js->atable = activity_table_new();
+    
+    js->rtable = jwork_runtable_new();
 
     // Queue initialization
     // globalinq is used by the main thread for input purposes
@@ -113,7 +115,7 @@ void jam_event_loop(void *arg)
             areg = activity_findcallback(js->atable, cmd->actname, cmd->opt);
             if (areg == NULL)
             {
-                printf("Function not found.. \n");
+                printf("Function not found.. %s\n", cmd->actname);
             }
             else
             {

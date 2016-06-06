@@ -39,6 +39,8 @@ void jrun_run_task(void *arg)
     command_t *cmd = (command_t *)trec->arg2;
     activity_callback_reg_t *creg = (activity_callback_reg_t *)trec->arg3;
     
+    command_t *rcmd;
+    
     free(arg);          // free the temprecord... we don't need it
 
     // if signature does not match get out... 
@@ -50,25 +52,37 @@ void jrun_run_task(void *arg)
     // Otherwise, we are going to run the task...
     // Create an activity
     jactivity_t *jact = activity_new(js->atable, cmd->actname);
+
+    jact->actarg = strdup(cmd->actid);
+    jact->taskid = taskid();
     
+    printf("Sending the ready..........................\n");
     // Send the ready...
-    command_t *rcmd = command_new("REXEC-RDY", "ASY", cmd->actname, jact->actid, cmd->actid, "s", "__");
+    if (creg->type == ASYNC)
+        rcmd = command_new("REXEC-RDY", "ASY", cmd->actname, jact->actid, cmd->actid, "s", "__");
+    else
+        rcmd = command_new("REXEC-RDY", "SYN", cmd->actname, jact->actid, cmd->actid, "s", "__");
+     
+    printf("Waitnnnn..........................\n");
         
     // Wait for the start or quit and act accordingly...
     queue_enq(jact->outq, rcmd, sizeof(command_t));
     task_wait(jact->sem);
+    printf("Waitnnnn..........................\n");
     
     nvoid_t *nv = queue_deq(jact->inq);
     assert (nv != NULL);
     rcmd = (command_t *)nv->data;
     free(nv);
-        
     if (rcmd != NULL) 
     {
         if (strcmp(rcmd->cmd, "REXEC-STA") == 0)
         {
+            printf("Starting the function.........................\n");
+            
             creg->cback(jact, cmd);
         }
         return;
     }
 }
+
