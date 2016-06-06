@@ -65,7 +65,7 @@ void *jwork_bgthread(void *arg)
     int counter = 0;
     while (1)
     {
-       printf("\n\n COUNTER %d \n\n", counter++);
+     //  printf("\n\n COUNTER %d \n\n", counter++);
 
         int nfds = jwork_wait_fds(js, beattime);
       //  printf("Activity Number After: %d\n", js->atable->numactivities);
@@ -250,7 +250,7 @@ void jwork_process_respsock(jamstate_t *js)
     // is not critical.. why wait for timeout?
     //
     command_t *rcmd = socket_recv_command(js->cstate->respsock, 5000);
-    printf("================= In respsock processing.. cmd: %s, opt: %s\n", rcmd->cmd, rcmd->opt);
+    printf("====================================== In respsock processing.. cmd: %s, opt: %s\n", rcmd->cmd, rcmd->opt);
 
     if (rcmd != NULL)
     {
