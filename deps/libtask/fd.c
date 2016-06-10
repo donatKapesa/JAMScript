@@ -14,6 +14,11 @@ static int startedfdtask;
 static Tasklist sleeping;
 static int sleepingcounted;
 static uvlong nsec(void);
+static int fd_enabled = 0;
+
+void enable_fd(){
+	fd_enabled = 1;
+}
 
 void
 fdtask(void *v)
@@ -21,13 +26,18 @@ fdtask(void *v)
 	int i, ms;
 	Task *t;
 	uvlong now;
-	
+
 	tasksystem();
 	taskname("fdtask");
 	for(;;){
 		/* let everyone else run */
-		while(taskyield() > 0)
-			;
+		printf("---------------------__START FD__--------------------\n");
+			while(taskyield() > 0){
+				if(fd_enabled)
+					break;
+			}
+		fd_enabled = 0;
+		printf("---------------------__END FD__--------------------\n");
 		/* we're the only one runnable - poll for i/o */
 		errno = 0;
 		taskstate("poll");
@@ -59,7 +69,7 @@ fdtask(void *v)
 				polltask[i] = polltask[npollfd];
 			}
 		}
-		
+
 		now = nsec();
 		while((t=sleeping.head) && now >= t->alarmtime){
 			deltask(&sleeping, t);
@@ -75,7 +85,7 @@ taskdelay(uint ms)
 {
 	uvlong when, now;
 	Task *t;
-	
+
 	if(!startedfdtask){
 		startedfdtask = 1;
 		taskcreate(fdtask, 0, 32768);
@@ -93,7 +103,7 @@ taskdelay(uint ms)
 		taskrunning->prev = sleeping.tail;
 		taskrunning->next = nil;
 	}
-	
+
 	t = taskrunning;
 	t->alarmtime = when;
 	if(t->prev)
@@ -126,7 +136,7 @@ fdwait(int fd, int rw)
 		fprint(2, "too many poll file descriptors\n");
 		abort();
 	}
-	
+
 	taskstate("fdwait for %s", rw=='r' ? "read" : rw=='w' ? "write" : "error");
 	bits = 0;
 	switch(rw){
@@ -151,7 +161,7 @@ int
 fdread1(int fd, void *buf, int n)
 {
 	int m;
-	
+
 	do
 		fdwait(fd, 'r');
 	while((m = read(fd, buf, n)) < 0 && errno == EAGAIN);
@@ -162,7 +172,7 @@ int
 fdread(int fd, void *buf, int n)
 {
 	int m;
-	
+
 	while((m=read(fd, buf, n)) < 0 && errno == EAGAIN)
 		fdwait(fd, 'r');
 	return m;
@@ -172,7 +182,7 @@ int
 fdwrite(int fd, void *buf, int n)
 {
 	int m, tot;
-	
+
 	for(tot=0; tot<n; tot+=m){
 		while((m=write(fd, (char*)buf+tot, n-tot)) < 0 && errno == EAGAIN)
 			fdwait(fd, 'w');
@@ -199,4 +209,3 @@ nsec(void)
 		return -1;
 	return (uvlong)tv.tv_sec*1000*1000*1000 + tv.tv_usec*1000;
 }
-
