@@ -14,11 +14,7 @@ static int startedfdtask;
 static Tasklist sleeping;
 static int sleepingcounted;
 static uvlong nsec(void);
-static int fd_enabled = 0;
 
-void enable_fd(){
-	fd_enabled = 1;
-}
 
 void
 fdtask(void *v)
@@ -31,28 +27,30 @@ fdtask(void *v)
 	taskname("fdtask");
 	for(;;){
 		/* let everyone else run */
-		printf("---------------------__START FD__--------------------\n");
-			while(taskyield() > 0){
-				if(fd_enabled)
-					break;
-			}
-		fd_enabled = 0;
-		printf("---------------------__END FD__--------------------\n");
+		//  
+		// 
+		//		while(taskyield() > 0){
+		//		if(fd_enabled)
+		//			break;
+		//	}
+		taskyield();
 		/* we're the only one runnable - poll for i/o */
 		errno = 0;
 		taskstate("poll");
-		if((t=sleeping.head) == nil)
-			ms = -1;
-		else{
+		ms = 0;
+		//if((t=sleeping.head) == nil)
+		//	ms = -1;
+		//else{
 			/* sleep at most 5s */
-			now = nsec();
-			if(now >= t->alarmtime)
-				ms = 0;
-			else if(now+5*1000*1000*1000LL >= t->alarmtime)
-				ms = (t->alarmtime - now)/1000000;
-			else
-				ms = 5000;
-		}
+		//	now = nsec();
+		//	if(now >= t->alarmtime)
+		//		ms = 0;
+		//	else if(now+5*1000*1000*1000LL >= t->alarmtime)
+		//		ms = (t->alarmtime - now)/1000000;
+		//	else
+		//		ms = 5000;
+		//}
+		
 		if(poll(pollfd, npollfd, ms) < 0){
 			if(errno == EINTR)
 				continue;
