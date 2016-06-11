@@ -50,7 +50,7 @@ void jam_run_app(void *arg)
       taskyield();
       len = 0;
       free(buf);
-      taskyield();
+     // taskyield();
       //taskdelay(200);
     }
 
