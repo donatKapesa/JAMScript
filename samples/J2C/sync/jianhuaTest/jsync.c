@@ -10,14 +10,6 @@ jsync int fakeRandom(char *s)
 
 }
 
-jsync int realRandom(char* s){
-	srand(time(0));
-	int n = rand() % 100;
-	printf("real random: %d\n", n);
-	return n;
-}
-
-
 
 
 
