@@ -51,7 +51,7 @@ corestate_t *core_init(int port, int timeout)
     corestate_t *cs = (corestate_t *)calloc(1, sizeof(corestate_t));
     // device_id set inside the following function
     core_setup(cs, timeout);
-    sprintf(serverhost, "tcp://172.28.3.233:%d", port);
+    sprintf(serverhost, "tcp://172.27.0.2:%d", port);
     // open an mqtt connection to localhost
     cs->mqttserv[0] = mqtt_open(serverhost);
     if (cs->mqttserv[0] == NULL)
