@@ -17,7 +17,7 @@ MQTTClient mqtt_open(char *mhost)
     sprintf(clientid, "CLIENTID-%d", getpid());
 
     MQTTClient_create(&mcl, mhost, clientid, MQTTCLIENT_PERSISTENCE_NONE, NULL);
-    conn_opts.keepAliveInterval = 20;
+    conn_opts.keepAliveInterval = 1;
     conn_opts.cleansession = 1;
 
     int rc;
@@ -35,7 +35,7 @@ MQTTClient mqtt_open(char *mhost)
 MQTTClient mqtt_reopen(MQTTClient mcl)
 {
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
-    conn_opts.keepAliveInterval = 20;
+    conn_opts.keepAliveInterval = 1;
     conn_opts.cleansession = 1;
 
     int rc;
