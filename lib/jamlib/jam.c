@@ -115,6 +115,7 @@ void jam_event_loop(void *arg)
     command_t *cmd;
     
     char *deviceid = js->cstate->device_id;
+    printf("deviceID: %s\n", deviceid);
 
     MQTTClient mcl = js->cstate->mqttserv[0];
     

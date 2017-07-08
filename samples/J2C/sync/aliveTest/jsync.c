@@ -18,7 +18,7 @@ int main()
     printf("In the main...\n");
 	double now = getcurtime();
 	printf("now: %f\n", now);
-	double start = now + 30.0;
+	double start = now + 60.0;
 	while(getcurtime() < start) {
 
 	}
