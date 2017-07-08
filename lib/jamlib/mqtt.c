@@ -13,10 +13,13 @@ MQTTClient mqtt_open(char *mhost)
     MQTTClient mcl;
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
 
-    char clientid[64];
-    sprintf(clientid, "CLIENTID-%d", getpid());
+	char hostname[1024];
+    gethostname(hostname, 1024);
 
-    MQTTClient_create(&mcl, mhost, clientid, MQTTCLIENT_PERSISTENCE_NONE, NULL);
+//    char clientid[64];
+ //   sprintf(clientid, "CLIENTID-%d", getpid());
+
+    MQTTClient_create(&mcl, mhost, hostname, MQTTCLIENT_PERSISTENCE_NONE, NULL);
     conn_opts.keepAliveInterval = 60;
     conn_opts.cleansession = 1;
 
@@ -72,12 +75,17 @@ command_t *mqtt_receive(MQTTClient mcl, char *cmdstr, char *topic, int timeout)
     if (MQTTClient_receive(mcl, &topicname, &tlen, &msg, timeout) == MQTTCLIENT_SUCCESS)
     {
         // timeout occured..
-        if (msg == NULL)
+        if (msg == NULL) {
+		
+			printf("msg null\n");
             return NULL;
+		}
         
         // if wrong topic, ignore the message 
-        if (strcmp(topic, topicname) != 0)
+        if (strcmp(topic, topicname) != 0) {
+			printf("wrong topic\n");
             return NULL;
+		}
 
         nvoid_t *nv = nvoid_new(msg->payload, msg->payloadlen);
         command_t *cmd = command_from_data(NULL, nv);
@@ -86,12 +94,14 @@ command_t *mqtt_receive(MQTTClient mcl, char *cmdstr, char *topic, int timeout)
         // if wrong command in the message, ignore the message as well
         if (strcmp(cmd->cmd, cmdstr) != 0)
         {
+			printf("wrong command\n");
             command_free(cmd);
             return NULL;
         }
 
         return cmd;
     }
+	printf("end\n");
 
     return NULL;
 }
