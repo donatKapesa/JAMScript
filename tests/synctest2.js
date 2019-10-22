@@ -5,7 +5,7 @@ jcond {
 
 var count = 1;
 
-jsync {fogonly} function getId() {
+jsync { fogonly } function getId() {
     console.log("Creating an ID.. ", count);
     return count++;
 }
