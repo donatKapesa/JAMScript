@@ -31,7 +31,10 @@
         "jamc": "./index.js"
     },
     "dependencies": {
+        "chai": "^4.2.0",
+        "express": "^4.17.1",
         "jszip": "^3.1.5",
+        "mocha": "^6.2.2",
         "node-gyp": "^5.0.1",
         "ohm-js": "^0.13.1"
     },
