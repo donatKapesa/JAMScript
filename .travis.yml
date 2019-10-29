@@ -19,3 +19,6 @@ matrix:
     
     
 install: npm install -g
+
+script:
+  - node index-spec.js 
