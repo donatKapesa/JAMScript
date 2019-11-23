@@ -7,6 +7,6 @@ var testObject = new MyClass('tom',0) // 0 is dummy in constructor
 
 assert.equal(testObject.name, 'tom') //(input,output)
 
-console.log('------------------------')
-console.log('all tests passed')
-console.log('------------------------')
+console.log('-----------------------------')
+console.log('Testing tests -? J2J -> ASYNC')
+console.log('-----------------------------')
