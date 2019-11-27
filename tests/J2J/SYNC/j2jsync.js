@@ -8,10 +8,10 @@ jsync function callX() {
 }
 
 setInterval(()=> {
-
+    var x = callX();
     if (jsys.type == "device")
 	console.log("Return value ", callX());
-     assert.typeOf(x.device[0], 'string');
+    assert.typeOf(x.device[0], 'string');
     
 }, 500);
      console("========passed=======")
