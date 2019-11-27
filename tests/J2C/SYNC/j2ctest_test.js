@@ -5,5 +5,6 @@ setInterval(()=> {
     var x = dotask();
     console.log(x);
     console.log(x.device[0])
-    assert.typeOf(x.device[0], 'string');
+    assert.equal(x.device[0], '3');
 }, 1000);
+    console("========passed=======")
