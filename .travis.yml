@@ -20,8 +20,8 @@ matrix:
     
 install: npm install -g
 
-before_script: cd tests/J2C/SYNC
+# before_script: cd tests/J2C/SYNC
 
 script:
   - node index-spec.js 
-  - jamrun j2ctest_test.jxe
+  - jamrun tests/J2C/SYNC/j2ctest_test.jxe
