@@ -11,7 +11,8 @@ setInterval(()=> {
     var x = callX();
     if (jsys.type == "device")
 	console.log("Return value ", callX());
-    assert.equal(x.device[0], '11');
+	console.log(x.device[0]);
+    assert.equal(x.device, '12');
     
 }, 500);
      console("========passed=======")
