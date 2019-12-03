@@ -1,3 +1,4 @@
+var expect = require('chai').expect
 
 jsync function getid() {
     console.log("Returning.. ", count);
@@ -6,6 +7,7 @@ jsync function getid() {
 
 jasync function you(s) {
     console.log("You - Message from C ", s);
+    expect(s).to.equal('cxxxxxxxx');
 }
 
 
