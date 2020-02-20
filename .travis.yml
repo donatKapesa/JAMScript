@@ -23,5 +23,6 @@ install: npm install -g
 # before_script: cd tests/J2C/SYNC
 
 script:
+  - npm run link
   - node index-spec.js 
   - jamrun tests/J2C/SYNC/j2ctest_test.jxe
