@@ -8,10 +8,13 @@ jsync function callX() {
 }
 
 setInterval(()=> {
-    var x = callX();
-    if (jsys.type == "device")
-	console.log("Return value ", x);
-    expect(x.device).to.equal(count);
-    console.log("========passed=======")
-}, 50);
+    if (jsys.type == "device"){
+    	var x = callX();
+	//console.log("Return value ", x);
+	//console.log("Count ", count);	
+	expect(x.device).to.equal(count);
+    	console.log("========passed=======");
+
+	}
+}, 500);
     
