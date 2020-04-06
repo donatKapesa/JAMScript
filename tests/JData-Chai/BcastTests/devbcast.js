@@ -1,3 +1,5 @@
+var should = require('chai').should;
+var assert = require('chai').assert;
 
 jdata {
     char *y as broadcaster;
@@ -13,8 +15,13 @@ jasync function sendbcast() {
 }
 
 
+jasync function you(p) {
+    console.log("Broadcaster return - Message from C ", p);
+    assert.equal(p, "hello..you..have..msg-" + count, " not equal");
+    console.log("======PASSED=======");
+}
+
 setInterval(function() {
     console.log("Calling sendbcast...");
 	sendbcast();
 }, 500);
-

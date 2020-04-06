@@ -1,3 +1,4 @@
+var expect = require('chai').expect
 
 jsync function getid() {
     console.log("Returning.. ", fogcnt);
@@ -8,7 +9,7 @@ jsync function getid() {
         console.log("Low delay...");
         loadme(25000000);
     } else {
-        console.log("High delauy...");
+        console.log("High delay...");
         loadme(100000000);
     }
     ii++;
@@ -22,6 +23,14 @@ function loadme(len) {
     }
 }
 
+jasync function you(s) {
+    console.log("You - Message from C ", s);
+    expect(s).to.equal('cxxxxxxxx');
+}
+
+jasync function task(){
+
+}
 
 var fogcnt = 10;
 var ii = 1;

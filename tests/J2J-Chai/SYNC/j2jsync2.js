@@ -1,3 +1,4 @@
+assert = require('chai').assert
 var count = 10;
 
 jsync function callX() {
@@ -8,7 +9,10 @@ jsync function callX() {
 
 setInterval(()=> {
 
-    if (jsys.type == "fog")
-	console.log("Return value ", callX());
-    
+  if (jsys.type == "fog"){
+      var x = callX();
+	    console.log("Return value ", x);
+      console.log(x.fog);
+      assert.equal(x.fog, count);
+  }
 }, 500);

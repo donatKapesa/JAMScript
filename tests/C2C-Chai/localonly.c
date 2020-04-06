@@ -7,7 +7,7 @@ jasync localme(int c, char *s)
     {
       jsleep(20);
       printf("############-->>> Hello  ME  %d, %s\n", c, s);
-      localonlyjs("Hello ME");
+      me(s);
     }
 }
 
@@ -17,7 +17,7 @@ jasync localyou(int c, char *s)
     {
       jsleep(100);
       printf("############-->>> Hello YOU  %d, %s\n", c, s);
-      localonlyjs("Hello YOU");
+      you(s);
     }
 }
 

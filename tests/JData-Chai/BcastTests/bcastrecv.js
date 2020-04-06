@@ -1,3 +1,5 @@
+var should = require('chai').should();
+
 
 jdata {
     char *pstr as broadcaster;
@@ -25,13 +27,22 @@ setInterval(function() {
 
     // We have the value printed at all levels including the controllers and
     // devices.
-    
-    if (jsys.type == "cloud")
-	pstr.broadcast(getstring());
-    else
-	console.log("Value ", pstr.getLastValue());
 
+    if (jsys.type == "cloud"){
+	     pstr.broadcast(getstring());
+}  else{
+	console.log("Value ", pstr.getLastValue());
+}
+
+  if (jsys.type === "cloud"){
+    should.exist(pstr);
+  }
 }, 500);
+
+jasync function you(val) {
+    console.log("Broadcaster return - Message from C ", val);
+    should.exist(val);
+}
 
 
 pstr.subscribe(function(x, y, z) {

@@ -1,5 +1,7 @@
 int getid();
 void you(char *s);
+void me(int id);
+
 
 int q;
 jasync localme(int c, char *s)
@@ -9,6 +11,7 @@ jasync localme(int c, char *s)
       jsleep(2000);
       q = getid();
       printf("############-->>> Hello  ME  %d... %s... %d\n", c, s, q);
+      //me(q);
     }
 }
 

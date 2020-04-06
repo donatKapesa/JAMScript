@@ -10,6 +10,12 @@ jasync function you(s) {
     expect(s).to.equal('cxxxxxxxx');
 }
 
+jasync function me(id) {
+    console.log("Me - Message from C ", s);
+    /*expect(id).to.equal(c);
+    console.log("================passed==============");*/
+}
+
 
 var count = 10;
 setInterval(function() {

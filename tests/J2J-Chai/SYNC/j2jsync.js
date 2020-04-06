@@ -1,4 +1,4 @@
-var expect = require('chai').expect
+assert = require('chai').assert
 var count = 10;
 
 jsync function callX() {
@@ -10,12 +10,9 @@ jsync function callX() {
 setInterval(()=> {
     if (jsys.type == "device"){
     	var x = callX();
-	//console.log("Return value ", x);
-	//console.log("Count ", count);	
-	expect(x.device).to.equal(count);
-    	console.log("========passed=======");
+      console.log(x.device);
+      assert.equal(x.device, count);
+    	//console.log("========passed=======");
 
 	}
 }, 500);
-    
-
