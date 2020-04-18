@@ -1,4 +1,4 @@
-
+var assert = require('chai').assert;
 jdata {
     char *name as logger;
 }
@@ -24,6 +24,8 @@ setInterval(function() {
     for (i = 0; i < name.size(); i++) {
 	    if (name[i] !== undefined) {
 		console.log("I: ", i, " Name ", name[i].lastValue());
+      if (i%2 != 0)
+    //assert.oneOf(name[i].lastValue(),["david", "mayer", "justin", "richard", "lekan", "ben", "owen", "nicholas", "karu", "clark"]);
 		//		console.log(name[i].getDeviceId());
 	    }
 	    else
