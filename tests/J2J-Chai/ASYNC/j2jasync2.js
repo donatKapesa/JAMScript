@@ -2,7 +2,8 @@ assert = require('chai').assert
 
 jasync function runthisfunc(x) {
     console.log("RunthisFunc called...");
-    assert.equal(x, 3);
+    expect(x).to.equal('3');
+    console.log("===============passed============")
 }
 
 

@@ -18,7 +18,7 @@ jasync function sendbcast() {
 jasync function you(p) {
     console.log("Broadcaster return - Message from C ", p);
     assert.equal(p, "hello..you..have..msg-" + count, " not equal");
-    console.log("======PASSED=======");
+    console.log("=============passed===============");
 }
 
 setInterval(function() {

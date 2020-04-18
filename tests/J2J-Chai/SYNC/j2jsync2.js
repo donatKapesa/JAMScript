@@ -14,5 +14,6 @@ setInterval(()=> {
 	    console.log("Return value ", x);
       console.log(x.fog);
       assert.equal(x.fog, count);
+      console.log("===============passed==============");
   }
 }, 500);

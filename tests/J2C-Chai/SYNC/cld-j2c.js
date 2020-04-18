@@ -5,7 +5,7 @@ setInterval(()=> {
         console.log("Start Cloud Test");
 	       var x = dotask();
          console.log(x);
-         //assert.equal(x.cloud, '3');
-	       //console.log(x);
+         assert.equal(x.cloud, '3');
+	     console.log("===============passed===============");
     }
 }, 1000);

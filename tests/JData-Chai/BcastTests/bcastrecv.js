@@ -36,12 +36,14 @@ setInterval(function() {
 
   if (jsys.type === "cloud"){
     should.exist(pstr);
+    console.log("=================passed============");
   }
 }, 500);
 
 jasync function you(val) {
     console.log("Broadcaster return - Message from C ", val);
     should.exist(val);
+    console.log("=================passed============");
 }
 
 

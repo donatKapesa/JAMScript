@@ -23,9 +23,11 @@ function loadme(len) {
     }
 }
 
-jasync function you(s) {
+jasync function you(s){
     console.log("You - Message from C ", s);
     expect(s).to.equal('cxxxxxxxx');
+    console.log("================passed===============");
+
 }
 
 jasync function task(){
