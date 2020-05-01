@@ -8,6 +8,7 @@ jsync function getid() {
 jasync function you(s) {
     console.log("You - Message from C ", s);
     expect(s).to.equal('cxxxxxxxx');
+    console.log("================passed==============");
 }
 
 jasync function me(id) {

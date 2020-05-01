@@ -12,7 +12,7 @@ setInterval(()=> {
     	var x = callX();
       console.log(x.device);
       assert.equal(x.device, count);
-    	//console.log("========passed=======");
+      console.log("========passed=======");
 
 	}
 }, 500);

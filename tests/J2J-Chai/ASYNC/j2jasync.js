@@ -1,14 +1,15 @@
-assert = require('chai').assert
+var expect = require('chai').expect
 
 jcond {
     fogonly: jsys.type == "fog";
 }
 
 var x = 100;
-
+x=x+1
 jasync function callother(y) {
     console.log("This is called... ", y);
-    assert.equal(y, x);
+    expect(y).to.equal(x);
+    console.log("==================passed=================")
 }
 
 
