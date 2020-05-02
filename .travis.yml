@@ -18,7 +18,7 @@ matrix:
     # - os: osx
     
     
-#install: npm install -g
+# install: npm install -g
 
 # before_script: cd tests/J2C/SYNC
 
@@ -26,4 +26,6 @@ script:
   - npm run link
   - node index-spec.js 
   - npm install tiny-worker
+  - npm install jamserver
+  - npm install
   - jamrun tests/J2C/SYNC/j2ctest_test.jxe
