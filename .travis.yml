@@ -23,10 +23,10 @@ matrix:
 # before_script: cd tests/J2C/SYNC
 
 script:
+  - npm install tiny-worker
   - npm run link
   - ls node_modules/
   - ls /home/travis/__jamruns/node_modules/
-#   - npm install tiny-worker
 #   - npm install jamserver
 #   - npm install jdiscovery
 #   - npm install flow
