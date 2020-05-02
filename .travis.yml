@@ -24,9 +24,9 @@ matrix:
 
 script:
   - npm run link
-  - node index-spec.js 
-  - npm install tiny-worker
-  - npm install jamserver
-  - npm install jdiscovery
-  - npm install flow
+#   - node index-spec.js 
+#   - npm install tiny-worker
+#   - npm install jamserver
+#   - npm install jdiscovery
+#   - npm install flow
   - jamrun tests/J2C/SYNC/j2ctest_test.jxe
