@@ -34,9 +34,7 @@ setInterval(()=> {
 	runQ('Q');
     if (jsys.type === "fog")
 	runX('X');
-    if (jsys.type === "device" && jsys.tags == "nodeA")
+    if (jsys.type === "device")
 	runY('Y');
-    if (jsys.type === "device" && jsys.tags == "nodeB")
-	runZ('Z');
 
 }, 600);

@@ -1,3 +1,5 @@
+var expect = require('chai').expect
+
 jcond {
     fogonly: jsys.type == "fog";
     devonly: jsys.type == "device";
@@ -5,25 +7,31 @@ jcond {
 }
 
 
-jsync {fogonly} function getfogid() {
-    console.log("Returning.. ", fogcnt);
-    return fogcnt++;
+jsync {fogonly} function setfogid(c) {
+    console.log("Returning.. ", c);
+    expect(c).to.equal(1);
+    console.log("================passed==============");
+    return c;
 }
 
-jsync {cloudonly} function getcloudid() {
-    console.log("Returning.. ", cloudcnt);
-    return cloudcnt++;
+jsync {cloudonly} function setcloudid(c) {
+    console.log("Returning.. ", c);
+    expect(c).to.equal(2);
+    console.log("================passed==============");
+    return c;
 }
 
-jsync {devonly} function getdevid() {
-    console.log("Returning.. ", devcnt);
-    return devcnt++;
+jsync {devonly} function setdevid(c) {
+    console.log("Returning.. ", c);
+    expect(c).to.equal(3);
+    console.log("================passed==============");
+    return c;
 }
 
 
-var fogcnt = 10,
-    cloudcnt = 1000,
-    devcnt = 10000;
+var fogcnt = 1,
+    cloudcnt = 2,
+    devcnt = 3;
 
 setInterval(function() {
     console.log("This is just a local print...");
