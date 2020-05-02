@@ -25,9 +25,5 @@ matrix:
 script:
   - npm install tiny-worker
   - npm run link
-  - ls node_modules/
-  - ls /home/travis/__jamruns/node_modules/
-#   - npm install jamserver
-#   - npm install jdiscovery
-#   - npm install flow
+# put testing scripts here
   - jamrun tests/J2C/SYNC/j2ctest_test.jxe
