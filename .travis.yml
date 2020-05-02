@@ -24,7 +24,8 @@ matrix:
 
 script:
   - npm run link
-#   - node index-spec.js 
+  - ls node_modules/
+  - ls /home/travis/__jamruns/node_modules/
 #   - npm install tiny-worker
 #   - npm install jamserver
 #   - npm install jdiscovery
