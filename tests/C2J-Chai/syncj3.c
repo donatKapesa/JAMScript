@@ -1,41 +1,42 @@
-int getfogid();
-int getcloudid();
-int getdevid();
+int setfogid(int);
+int setcloudid(int);
+int setdevid(int);
 
 
 int q, p;
-jasync localme(int c, char *s)
+jasync localme(int c)
 {
   while(1)
     {
       jsleep(2000);
-      q = getfogid();
-      printf("############-->>> Hello  ME  %d... %s... %d\n", c, s, q);
+      setfogid(c);
+      printf("############-->>> Hello C fog  %d\n", c);
     }
 }
 
-jasync localyou(int c, char *s)
+jasync localyou(int c)
 {
   while(1)
     {
       jsleep(1000);
-      p = getcloudid();
-      printf("############-->>> Hello YOU  %d, %s... %d\n", c, s, p);
+      setcloudid(c);
+      printf("############-->>> Hello C Cloud  %d\n", c);
     }
 }
 
-jasync localtask()
+jasync localthey(int c)
 {
-    while(1)
+  while(1)
     {
-        jsleep(2000);
-        printf(">>>>>>> Output from a pure local task... d\n");
+      jsleep(1000);
+      setdevid(c);
+      printf("############-->>> Hello C Dev  %d\n", c);
     }
 }
 
 int main(int argc, char *argv[])
 {
-  localme(10, "cxxxxyyyy");
-  localyou(10, "cxxxxxxxx");
-  localtask();
+  localme(1);
+  localyou(2);
+  localthey(3);
 }

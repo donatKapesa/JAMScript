@@ -1,37 +1,33 @@
-var expect = require('chai').expect
+assert = require('chai').assert
 
-jcond {
-    fogonly: jsys.type == "fog";
-    devonly: jsys.type == "device";
-    cloudonly: jsys.type == "cloud";
+jasync function runQ(c) {
+    console.log("runQ called.");
+    assert.equal(c, 'Q');
+    console.log("===============failed============")
 }
 
 
-jsync {fogonly} function setfogid(c) {
-    console.log("Returning.. ", c);
-    expect(c).to.equal(1);
-    console.log("================passed==============");
-    return c;
+jasync function runX(c) {
+    console.log("runX called.");
+    assert.equal(c, 'X');
+    console.log("===============failed============")
 }
 
-jsync {cloudonly} function setcloudid(c) {
-    console.log("Returning.. ", c);
-    expect(c).to.equal(2);
-    console.log("================passed==============");
-    return c;
-}
-
-jsync {devonly} function setdevid(c) {
-    console.log("Returning.. ", c);
-    expect(c).to.equal(3);
-    console.log("================passed==============");
-    return c;
+jasync function runY(c) {
+    console.log("runY called.");
+    assert.equal(c, 'Y');
+    console.log("===============passed============")
 }
 
 
-var fogcnt = 1,
-    cloudcnt = 2,
-    devcnt = 3;
+jsync function setid(c){
+    if (jsys.type === "cloud")
+      runQ('Q');
+    if (jsys.type === "fog")
+      runX('X');
+    if (jsys.type === "device")
+      runY('Y');
+}
 
 setInterval(function() {
     console.log("This is just a local print...");
