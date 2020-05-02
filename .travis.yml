@@ -27,5 +27,5 @@ script:
   - node index-spec.js 
   - npm install tiny-worker
   - npm install jamserver
-  - npm install
+  - npm install jdiscovery
   - jamrun tests/J2C/SYNC/j2ctest_test.jxe
